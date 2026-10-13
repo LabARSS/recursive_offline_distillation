@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.755117513267627,
+  "total": 1319,
+  "correct": 996,
+  "num_truncated": 16,
+  "model_path": "/src/recursive_offline_distillation/src/experiments/distillation_on_synthetic_traces/gsm8k/../../../../artifacts/distillation_on_synthetic_traces/gsm8k/direct_reasoning_trace/llama_3b_head_truncated8192/checkpoint-970"
+}
