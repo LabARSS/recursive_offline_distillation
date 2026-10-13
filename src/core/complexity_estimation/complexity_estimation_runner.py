@@ -136,9 +136,15 @@ class ComplexityEstimationRunner:
                     print(f"Input: {row.model_dump()}")
                     print(f"Processed: {df.loc[index]}")
             except InvalidAnswerError:
-                # Expected: the model didn't emit a parseable answer (e.g. drifted to a thinking
-                # token). Leave entropy_value unset (NaN) so it is backfilled; the raw token IDs
-                # remain available in the parquet for diagnosis.
+                # Expected: the model didn't emit a parseable answer. Observed on Qwen2.5-3B/GSM8K
+                # as an immediate end-of-turn token (<|im_end|>) -> empty answer; a thinking token
+                # is only one of several ways this happens. Leave entropy_value unset (NaN) so it
+                # is backfilled; the raw token IDs remain available in the parquet for diagnosis.
+                #
+                # Note this is NOT the only source of NaN entropy: a row can parse fine and still
+                # record entropy_value=NaN when the logits are non-finite, since
+                # compute_entropy_from_logits propagates NaN and pydantic accepts it for a float
+                # field. Such rows never reach this handler and are not counted here.
                 invalid_answers += 1
             except Exception as ex:
                 print(f"Error processing row {row.row_id}: {ex}")

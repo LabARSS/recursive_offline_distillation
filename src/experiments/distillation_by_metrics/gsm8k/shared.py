@@ -53,11 +53,7 @@ def run(
     seed: int = 42,
     redraw_each_epoch: bool = False,
 ):
-    MODEL_NAME = (
-        Path(__file__)
-        .parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}")
-        .as_posix()
-    )
+    MODEL_NAME = Path(__file__).parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}").as_posix()
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -79,9 +75,7 @@ def run(
 
     TEACHER_ENTROPY_DATASET_PATH = OUT_PATH.joinpath("teacher_entropy.parquet")
     merge_mmlu_on_question_id(
-        main_path=Path(__file__).parent.joinpath(
-            f"../../../../data/out/distillation/{train_dataset}.parquet"
-        ),
+        main_path=Path(__file__).parent.joinpath(f"../../../../data/out/distillation/{train_dataset}.parquet"),
         extra_paths=[
             Path(__file__).parent.joinpath(
                 "../../../../data/out/single_token_entropy_normalized/gsm8k_llama_70b.parquet"
@@ -108,7 +102,6 @@ def run(
                 seed=seed,
                 data_seed=seed,
                 torch_compile=False,
-                learning_rate=1e-5,
             ),
             lora_training_args=lora_training_args,
             # packing=PackingConfig(budget=packing_budget(model_name)),
@@ -128,11 +121,8 @@ def run(
                     tokenizer=tokenizer,
                 )
             ),
-            complexity_estimator=complexity_estimator_override
-            or SingleTokenEntropyEstimator(),
-            complexity_estimation_runner_generation_config=ModelGenerateConfig(
-                max_new_tokens=1
-            ),
+            complexity_estimator=complexity_estimator_override or SingleTokenEntropyEstimator(),
+            complexity_estimation_runner_generation_config=ModelGenerateConfig(max_new_tokens=1),
         ),
         tokenizer=tokenizer,
     )
@@ -151,9 +141,7 @@ def run(
                     dataset=GSM8KReasoningResponseDataset(
                         config=QADatasetConfig(
                             path=Path(__file__)
-                            .parent.joinpath(
-                                "../../../../data/source/gsm8k/gsm8k_test.parquet"
-                            )
+                            .parent.joinpath("../../../../data/source/gsm8k/gsm8k_test.parquet")
                             .as_posix(),
                             dataset_id=eval_dataset_id,
                         ),
@@ -209,7 +197,7 @@ def get_merged_adapter_with_data_mix_from_factory(
                     # Will be overridden
                     tokenizer=None,  # type: ignore
                 ),
-                dataset_sampler=sampler_factory(256),
+                dataset_sampler=sampler_factory(192),
             ),
         ]
     )

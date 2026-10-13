@@ -6,6 +6,21 @@ from core.utils.cot_answers import clean_assistant_response
 
 class GSM8KReasoningResponseDataset(GSM8KDirectResponseDataset):
     @override
+    def system_prompt(self, row: dict) -> str:
+        return (
+            "The following are grade school math word problems."
+            "Start your response with <think>"
+            "Solve the problem step-by-step, then put the final answer as a single number after </think>.\n\n"
+            "Required format: <think><your step-by-step solution></think><answer>\n"
+            "Replace <answer> with the final number."
+            "Use plain digits, with a minus sign or decimal point if needed. "
+            "Do not put prose, units, currency symbols, thousands separators, a list number, "
+            "or Markdown formatting on that line. Stop immediately after the final number.\n\n"
+            "Example response:\n"
+            "<think>There are 3 groups of 4 items, so the total is 3 * 4 = 12.</think>12"
+        )
+
+    @override
     def assistant_response(self, row: dict) -> str:
         reasoning_chain = row["distill_reasoning"].strip()
         answer = str(row["distill_answer"]).strip().lower()

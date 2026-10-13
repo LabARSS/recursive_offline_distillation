@@ -15,7 +15,10 @@ class GSM8KDirectResponseDataset(QADataset[QADatasetConfig]):
 
     @override
     def system_prompt(self, row: dict) -> str:
-        return "The following are grade school math word problems. Please, return your answer as a number (without extra/special symbols) and nothing else."
+        return (
+            "The following are grade school math word problems."
+            "Please, return your answer as a single number (without extra/special symbols) and nothing else."
+        )
 
     @override
     def user_prompt(self, row: dict) -> str:

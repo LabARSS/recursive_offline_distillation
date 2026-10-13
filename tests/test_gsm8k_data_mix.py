@@ -47,8 +47,8 @@ def test_gsm8k_mix_redraws_and_supervises_direct_answers(
     later = list(dataset)
 
     reasoning_size, direct_size = [adapter.sampled_size() for adapter in mix.dataset_adapters]
-    assert (reasoning_size, direct_size) == (768, 320)
-    assert len(first) == len(later) == len(dataset) == 1088
+    assert (reasoning_size, direct_size) == (768, 256)
+    assert len(first) == len(later) == len(dataset) == 1024
     assert first == replay
     first_direct = {row["row_id"] for row in first[reasoning_size:]}
     later_direct = {row["row_id"] for row in later[reasoning_size:]}

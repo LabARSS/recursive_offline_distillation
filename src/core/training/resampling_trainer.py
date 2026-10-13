@@ -408,10 +408,19 @@ class EstimateComplexityCallback(TrainerCallback):
         shutil.rmtree(model_dir, ignore_errors=True)
 
     def _reconcile_estimation(self, epoch: int) -> None:
-        # After a LoRA epoch the model may emit a thinking token instead of a single answer letter,
-        # so those rows fail to measure (entropy_value is NaN). Reuse the previous epoch's
-        # last-known-good entropy for the failed rows. Any residual NaN (epoch 0, or rows that
-        # failed every epoch) is harmlessly dropped by the sampler (NaN scores sort to the bottom).
+        # A row "fails to measure" (entropy_value is NaN) via two distinct paths, which this
+        # single counter conflates:
+        #   1. The model emitted no parseable answer, so verify_assistant_response raised
+        #      InvalidAnswerError. Observed on Qwen2.5-3B/GSM8K as an immediate end-of-turn token
+        #      (<|im_end|>) -> empty answer, NOT the thinking-token drift once assumed here.
+        #      Fingerprint: BOTH the answer column and entropy_value are NaN.
+        #   2. The answer parsed fine but the logits were non-finite, so compute_entropy_from_logits
+        #      returned NaN (pydantic accepts NaN for a float field, so it flows through silently).
+        #      Fingerprint: answer column populated, entropy_value alone NaN.
+        # Only (1) is a format/behaviour drift the data mix can fix; (2) is numerical instability.
+        # Reuse the previous epoch's last-known-good entropy for the failed rows. Any residual NaN
+        # (epoch 0, or rows that failed every epoch) is harmlessly dropped by the sampler (NaN
+        # scores sort to the bottom).
         path = self.out_path_for_epoch(epoch)
         df = pd.read_parquet(path)
 
