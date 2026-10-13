@@ -10,6 +10,7 @@ up stale/backfilled — "we lose the entropy on recovery".
 from types import SimpleNamespace
 
 import pandas as pd
+import pytest
 import torch
 
 from core.complexity_estimation.complexity_estimation_runner import (
@@ -41,7 +42,8 @@ class _FakeModel:
         return SimpleNamespace(sequences=sequences, scores=scores)
 
 
-def test_resume_measures_only_unmeasured_rows(thinking_tokenizer, tmp_path):
+@pytest.mark.parametrize("with_token_ids", [False, True])
+def test_resume_measures_only_unmeasured_rows(thinking_tokenizer, tmp_path, with_token_ids):
     adapter = QADatasetAdapter(
         dataset=MMLUSingleTokenResponseDataset(
             config=QADatasetConfig(path="sentinel", dataset_id="mmlu_teacher_entropy"),
@@ -76,6 +78,10 @@ def test_resume_measures_only_unmeasured_rows(thinking_tokenizer, tmp_path):
                 "estimation_phase_answer_correctness": True, "entropy_value": 0.5}
     unmeasured = {**base, "question_id": "q1", "estimation_phase_answer": None,
                   "estimation_phase_answer_correctness": None, "entropy_value": None}
+    measured_tokens = thinking_tokenizer.encode("a", add_special_tokens=False)
+    if with_token_ids:
+        measured["estimation_phase_answer_token_ids"] = measured_tokens
+        unmeasured["estimation_phase_answer_token_ids"] = None
     pd.DataFrame([measured, unmeasured]).to_parquet(runner.tmp_path())
 
     fake = _FakeModel(thinking_tokenizer)
@@ -86,5 +92,10 @@ def test_resume_measures_only_unmeasured_rows(thinking_tokenizer, tmp_path):
     res = pd.read_parquet(out_path).set_index("question_id")
     assert res.loc["q0", "entropy_value"] == 0.5  # preserved, not recomputed
     assert pd.notna(res.loc["q1", "entropy_value"])  # freshly measured, not left NaN / backfilled
+    if with_token_ids:
+        assert res.loc["q0", "estimation_phase_answer_token_ids"].tolist() == measured_tokens
+    else:
+        assert pd.isna(res.loc["q0", "estimation_phase_answer_token_ids"])
+    assert res.loc["q1", "estimation_phase_answer_token_ids"].tolist() == fake._answer_tokens
     # The runner cleans up the .tmp on successful completion.
     assert not runner.tmp_path().exists()

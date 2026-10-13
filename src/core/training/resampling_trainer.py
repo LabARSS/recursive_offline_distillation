@@ -42,11 +42,13 @@ class ResamplingDataset(IterableDataset):
         tokenizer: PreTrainedTokenizer,
         shuffle: bool = False,
         data_seed: int = 42,
+        redraw_each_epoch: bool = False,
     ):
         self.dataset = dataset
         self.tokenizer = tokenizer
         self.shuffle = shuffle
         self.data_seed = data_seed
+        self.redraw_each_epoch = redraw_each_epoch
         self.epoch = 0
         self.selection_epoch = 0
         self._logged_samples = False
@@ -63,14 +65,18 @@ class ResamplingDataset(IterableDataset):
             return size
         return len(self.dataset.process_dataset(path_override=self.dataset_path))
 
-    def __iter__(self):
-        # Calling process_dataset to re-sample dataset after EstimateComplexityCallback runs
+    def _process_dataset(self):
         self.dataset.set_epoch(self.selection_epoch)
-        dataset = self.dataset.process_dataset(
+        return self.dataset.process_dataset(
             path_override=self.dataset_path,
             shuffle=self.shuffle,
             shuffle_seed=self.data_seed + self.epoch,
+            redraw_seed=self.data_seed + self.epoch if self.redraw_each_epoch else None,
         )
+
+    def __iter__(self):
+        # Re-sample after EstimateComplexityCallback runs; replace only random_value on redraw.
+        dataset = self._process_dataset()
 
         if not self._logged_samples and len(dataset) > 0:
             first_sample = dataset[0]
@@ -175,8 +181,11 @@ class PackedResamplingDataset(ResamplingDataset):
         gradient_accumulation_steps: int,
         shuffle: bool = False,
         data_seed: int = 42,
+        redraw_each_epoch: bool = False,
     ):
-        super().__init__(dataset, tokenizer, shuffle=shuffle, data_seed=data_seed)
+        super().__init__(
+            dataset, tokenizer, shuffle=shuffle, data_seed=data_seed, redraw_each_epoch=redraw_each_epoch
+        )
         assert dataset.sampled_size() is not None, (
             "Packed resampling needs a sampler-defined size: __len__ must be a constant "
             "independent of the per-epoch parquet (packs vary per epoch; docs-slots may not)."
@@ -190,12 +199,7 @@ class PackedResamplingDataset(ResamplingDataset):
 
     @override
     def __iter__(self):
-        self.dataset.set_epoch(self.selection_epoch)
-        dataset = self.dataset.process_dataset(
-            path_override=self.dataset_path,
-            shuffle=self.shuffle,
-            shuffle_seed=self.data_seed + self.epoch,
-        )
+        dataset = self._process_dataset()
         assert len(dataset) > 0, "Packed resampling got an empty epoch sample"
 
         lengths = [len(ids) for ids in dataset["input_ids"]]
@@ -277,13 +281,13 @@ class EstimateComplexityCallback(TrainerCallback):
         # epoch=1; dir "2" is model-after-2, which is NOT checkpointed.)
         epoch = int(state.epoch)
 
-        # Frozen epoch: the sample stays whatever the last scheduled epoch drew, and
-        # SetResamplingPathCallback keeps the dataset pointed at that epoch's parquet. Nothing to
-        # estimate or reconcile -- returning here is what makes a frozen schedule cheap (no weight
-        # snapshot, no estimation subprocess). Must precede the kwargs["model"] access below.
+        # Reuse the last scheduled epoch's complexity parquet between estimates. The sample may
+        # still change when redraw_each_epoch is enabled. Nothing to estimate or reconcile --
+        # returning here skips both the weight snapshot and the estimation subprocess.
+        # Must precede the kwargs["model"] access below.
         resampling_epoch = self.resampling_epoch_for(epoch)
         if resampling_epoch != epoch:
-            logger.info(f"Epoch {epoch} not in resampling_schedule; reusing the epoch {resampling_epoch} sample.")
+            logger.info(f"Epoch {epoch} not in resampling_schedule; reusing epoch {resampling_epoch} complexity.")
             return
 
         # Resume: only reuse a dumped complexity when the weights it was measured on were checkpointed,
@@ -505,11 +509,12 @@ class EstimateComplexityCallback(TrainerCallback):
         return self.out_path_for_epoch(epoch).parent / "estimation_stats.json"
 
     def resampling_epoch_for(self, epoch: int) -> int:
-        """The epoch whose complexity dump (and therefore whose sample) `epoch` trains on.
+        """The epoch whose complexity dump `epoch` trains on.
 
         Without a schedule that is `epoch` itself: every epoch re-estimates and re-samples. With one
-        it is the latest scheduled epoch <= `epoch`, so the sample stays frozen in between. Phrasing
-        it as "latest <=" rather than "did this epoch resample" is what makes resume work: a run
+        it is the latest scheduled epoch <= `epoch`. Stored draws stay frozen in between unless
+        redraw_each_epoch replaces random_value. Phrasing it as "latest <=" rather than "did
+        this epoch resample" is what makes resume work: a run
         restarted at epoch 7 under schedule [0] sees on_epoch_begin(7) as its FIRST callback and
         must still resolve to epoch 0's parquet, which was written by the original run."""
         if self._resampling_schedule is None:
@@ -608,7 +613,7 @@ class SetResamplingPathCallback(TrainerCallback):
         assert state.epoch is not None
 
         # Route through resampling_epoch_for so both callbacks agree on the effective epoch by
-        # construction: on a frozen epoch EstimateComplexityCallback wrote nothing, and the dataset
+        # construction: between estimates EstimateComplexityCallback wrote nothing, and the dataset
         # must keep reading the last scheduled epoch's parquet.
         callback = self.estimation_complexity_callback
         self.resampling_ds.epoch = int(state.epoch)
@@ -624,11 +629,13 @@ class ResamplingTrainerConfig(LoRATrainerConfig):
     # Abort training if more than this fraction of rows fail single-token entropy measurement
     # in an epoch (the model drifting to chain-of-thought output).
     max_failed_estimation_fraction: float = 0.1
-    # Epochs at which the training sample is (re)drawn. None (the default) re-estimates complexity
-    # and re-samples at the start of every epoch. A list freezes the sample between scheduled epochs
-    # and skips estimation entirely on the frozen ones -- [0] draws once, on the untrained student,
-    # and trains on that set for the whole run.
+    # Epochs at which complexity is re-estimated. None estimates every epoch. By default a list
+    # also freezes the sample between scheduled epochs; [0] estimates on the initial student and
+    # trains on that sample throughout. redraw_each_epoch refreshes random_value between estimates.
     resampling_schedule: list[int] | None = None
+    # Replace random_value in memory before sampling, using data_seed + training epoch.
+    # Complexity is still measured only at resampling_schedule epochs.
+    redraw_each_epoch: bool = False
     # ResamplingDataset is iterable, so HF Trainer cannot attach its usual RandomSampler. Opt in
     # here to shuffle each finalized adapter sample independently and deterministically with
     # data_seed + training epoch, before a merged adapter concatenates its children.
@@ -683,12 +690,14 @@ class ResamplingTrainer(LoRATrainer[ResamplingTrainerConfig]):
                 // self.config.training_args.per_device_train_batch_size,
                 shuffle=self.config.shuffle,
                 data_seed=self.config.training_args.data_seed,
+                redraw_each_epoch=self.config.redraw_each_epoch,
             )
         train_ds = ResamplingDataset(
             self.config.train_dataset,
             self.tokenizer,
             shuffle=self.config.shuffle,
             data_seed=self.config.training_args.data_seed,
+            redraw_each_epoch=self.config.redraw_each_epoch,
         )
         return train_ds
 

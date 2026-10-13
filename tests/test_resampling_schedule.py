@@ -1,8 +1,9 @@
-"""`resampling_schedule` freezes the training sample between scheduled epochs.
+"""`resampling_schedule` freezes complexity between scheduled epochs.
 
 Default (None) = today's behaviour: every epoch re-estimates complexity and re-samples. A list
-restricts (re)sampling to those epochs -- [0] draws once, on the untrained student, and trains on
-that set for the whole run. Frozen epochs must skip estimation entirely (that is the whole point:
+restricts estimation to those epochs. By default it also freezes the sample; redraw_each_epoch
+replaces random_value in memory while reusing the same complexity. Cached epochs skip
+estimation entirely (that is the whole point:
 no weight snapshot, no estimation subprocess) while still pointing the dataset at the last
 scheduled epoch's parquet, including when a resume makes a frozen epoch the FIRST on_epoch_begin.
 """
@@ -18,7 +19,10 @@ from pydantic import ValidationError
 from core.complexity_estimation.complexity_estimation_runner import ModelGenerateConfig
 from core.complexity_estimation.entropy.single_token_entropy_estimator import SingleTokenEntropyEstimator
 from core.dataset_samplers.base_sampler import BaseDatasetSamplerConfig
+from core.dataset_samplers.entropy_gain_proportional_sampler import EntropyGainProportionalSampler
 from core.dataset_samplers.entropy_gain_sampler import EntropyGainSampler
+from core.dataset_samplers.random_sampler import RandomSampler
+from core.dataset_samplers.student_entropy_proportional_sampler import StudentEntropyProportionalSampler
 from core.datasets.causal_dataset_adapter import CausalDatasetAdapter
 from core.datasets.mmlu.mmlu_reasoning_response_dataset import MMLUReasoningResponseDataset
 from core.datasets.mmlu.mmlu_single_token_response_dataset import MMLUSingleTokenResponseDataset
@@ -27,6 +31,7 @@ from core.datasets.qa_dataset_adapter import QADatasetAdapter
 from core.training.lora_trainer import LoRATrainingArgs
 from core.training.resampling_trainer import (
     EstimateComplexityCallback,
+    ResamplingDataset,
     ResamplingTrainerConfig,
     SetResamplingPathCallback,
 )
@@ -161,6 +166,49 @@ def test_set_path_callback_uses_effective_epoch_for_selection(tmp_path):
     assert ds.dataset_path == cb.out_path_for_epoch(10).as_posix()
 
 
+@pytest.mark.parametrize("redraw_each_epoch", [False, True])
+@pytest.mark.parametrize("schedule", [[0], [0, 10]])
+@pytest.mark.parametrize(
+    "sampler_cls", [EntropyGainProportionalSampler, StudentEntropyProportionalSampler, RandomSampler]
+)
+def test_cached_entropy_training_redraws_only_when_enabled(
+    thinking_tokenizer, tmp_path, make_resampling_df, redraw_each_epoch, schedule, sampler_cls
+):
+    cb = _callback(tmp_path, resampling_schedule=schedule)
+    path = cb.out_path_for_epoch(0)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    source = make_resampling_df(40)
+    source["entropy_value"] = 0.8  # All rows eligible, with equal weights.
+    source["random_value"] = [(i + 1) / (len(source) + 1) for i in range(len(source))]
+    source.to_parquet(path, index=False)
+    before = path.read_bytes()
+    adapter = CausalDatasetAdapter(
+        dataset=MMLUReasoningResponseDataset(
+            config=QADatasetConfig(path="sentinel", dataset_id="train"),
+            tokenizer=thinking_tokenizer,
+        ),
+        dataset_sampler=sampler_cls(BaseDatasetSamplerConfig(top_k=5)),
+    )
+    ds = ResamplingDataset(adapter, thinking_tokenizer, data_seed=43, redraw_each_epoch=redraw_each_epoch)
+    set_path = SetResamplingPathCallback(
+        estimation_complexity_callback=cb, resampling_ds=ds
+    )
+
+    def selected(epoch):
+        state = types.SimpleNamespace(epoch=float(epoch))
+        # A cached epoch must skip model access and estimation altogether.
+        cb.on_epoch_begin(None, state, None)
+        set_path.on_epoch_begin(None, state, None)
+        return [row["row_id"] for row in ds]
+
+    first = selected(7)
+    assert first == selected(7)  # Includes starting at epoch 7 after resume.
+    later = selected(8)
+    assert (set(first) != set(later)) == redraw_each_epoch
+    assert ds.dataset_path == path.as_posix()
+    assert path.read_bytes() == before
+
+
 # --- schedule-aware backfill ----------------------------------------------------------------
 
 
@@ -198,7 +246,7 @@ def test_sample_once_epoch_zero_has_no_backfill(tmp_path):
 # --- config validation ----------------------------------------------------------------------
 
 
-def _config(thinking_tokenizer, resampling_schedule, tmp_path):
+def _config(thinking_tokenizer, resampling_schedule, tmp_path, redraw_each_epoch=False):
     return ResamplingTrainerConfig(
         out_path=tmp_path.as_posix(),
         model_id="sentinel-model",
@@ -219,12 +267,19 @@ def _config(thinking_tokenizer, resampling_schedule, tmp_path):
         complexity_estimator=SingleTokenEntropyEstimator(),
         complexity_estimation_runner_generation_config=ModelGenerateConfig(max_new_tokens=1),
         resampling_schedule=resampling_schedule,
+        redraw_each_epoch=redraw_each_epoch,
     )
 
 
 @pytest.mark.parametrize("schedule", [None, [0], [0, 10, 20]])
 def test_config_accepts_valid_schedules(thinking_tokenizer, tmp_path, schedule):
     assert _config(thinking_tokenizer, schedule, tmp_path).resampling_schedule == schedule
+
+
+@pytest.mark.parametrize("redraw_each_epoch", [False, True])
+def test_config_accepts_redraw_option(thinking_tokenizer, tmp_path, redraw_each_epoch):
+    config = _config(thinking_tokenizer, [0], tmp_path, redraw_each_epoch=redraw_each_epoch)
+    assert config.redraw_each_epoch == redraw_each_epoch
 
 
 @pytest.mark.parametrize(

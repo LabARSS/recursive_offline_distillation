@@ -3,7 +3,8 @@ from typing import override
 
 from transformers import PreTrainedTokenizer
 
-from core.datasets.qa_dataset import QADataset, QADatasetConfig
+from core.datasets.qa_dataset import InvalidAnswerError, QADataset, QADatasetConfig
+from core.utils.cot_answers import verify_math_answer
 
 
 class GSM8KDirectResponseDataset(QADataset[QADatasetConfig]):
@@ -14,7 +15,7 @@ class GSM8KDirectResponseDataset(QADataset[QADatasetConfig]):
 
     @override
     def system_prompt(self, row: dict) -> str:
-        return "The following are grade school math word problems. Please, return your answer as a single number (without extra/special symbols) and nothing else."
+        return "The following are grade school math word problems. Please, return your answer as a number (without extra/special symbols) and nothing else."
 
     @override
     def user_prompt(self, row: dict) -> str:
@@ -23,7 +24,7 @@ class GSM8KDirectResponseDataset(QADataset[QADatasetConfig]):
 
     @override
     def assistant_response(self, row: dict) -> str:
-        return str(row["answer"]).strip().lower()
+        return self._ground_truth_answer(row)
 
     @override
     def row_id(self, row: dict) -> str:
@@ -33,7 +34,16 @@ class GSM8KDirectResponseDataset(QADataset[QADatasetConfig]):
     def verify_assistant_response(self, row: dict, assistant_response: str) -> tuple[str, bool]:
         parsed_answer = assistant_response.strip().lower()
 
+        if not parsed_answer:
+            # Callers treat an empty answer as a failed measurement.
+            raise InvalidAnswerError("empty answer (model likely emitted a thinking/special token)")
+
         try:
-            return parsed_answer, self.assistant_response(row) == parsed_answer
-        except:
+            return parsed_answer, verify_math_answer(
+                self._ground_truth_answer(row), parsed_answer, normalize_thousands=True
+            )
+        except Exception:
             return parsed_answer, False
+
+    def _ground_truth_answer(self, row: dict) -> str:
+        return str(row["answer"]).strip().lower()

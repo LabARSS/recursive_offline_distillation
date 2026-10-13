@@ -208,6 +208,40 @@ def test_packed_shuffle_is_epoch_seeded(thinking_tokenizer, tmp_path, make_resam
     assert first != next_epoch
 
 
+def test_packed_redraw_reuses_entropy_and_changes_samples(thinking_tokenizer, tmp_path, make_resampling_df):
+    from core.dataset_samplers.entropy_gain_proportional_sampler import EntropyGainProportionalSampler
+    from core.training.base_trainer import PackingConfig
+
+    parquet = tmp_path / "cached.parquet"
+    source = make_resampling_df(40)
+    source["entropy_value"] = 0.8
+    source["random_value"] = 0.5
+    source["distill_reasoning"] = [f"Reasoning for problem {i}." for i in range(len(source))]
+    source.to_parquet(parquet, index=False)
+    before = parquet.read_bytes()
+    adapter = _adapter(thinking_tokenizer, top_k=TOP_K)
+    adapter.dataset_sampler = EntropyGainProportionalSampler(BaseDatasetSamplerConfig(top_k=TOP_K))
+    docs = adapter.process_dataset(path_override=str(parquet))
+    ds = PackedResamplingDataset(
+        adapter,
+        thinking_tokenizer,
+        packing=PackingConfig(budget=max(len(ids) for ids in docs["input_ids"])),
+        gradient_accumulation_steps=ACCUM,
+        data_seed=43,
+        redraw_each_epoch=True,
+    )
+    ds.dataset_path = str(parquet)
+
+    ds.epoch = 7
+    first = list(ds)
+    assert first == list(ds)
+    ds.epoch = 8
+    later = list(ds)
+    assert first != later
+    assert len(first) == len(later) == TOP_K
+    assert parquet.read_bytes() == before
+
+
 def test_len_must_divide_accumulation(thinking_tokenizer):
     from core.training.base_trainer import PackingConfig
 

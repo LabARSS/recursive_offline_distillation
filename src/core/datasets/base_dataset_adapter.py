@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from pathlib import Path
+from random import Random
 from typing import override
 
 import pandas as pd
@@ -59,6 +60,7 @@ class BaseDatasetAdapter[D: BaseDataset](AbstractDatasetAdapter):
         strict: bool = True,
         shuffle: bool = False,
         shuffle_seed: int | None = None,
+        redraw_seed: int | None = None,
     ) -> Dataset:
         if path_override is not None:
             ds = self._load_ds(
@@ -69,6 +71,12 @@ class BaseDatasetAdapter[D: BaseDataset](AbstractDatasetAdapter):
             )
         else:
             ds = self._load_ds(self.dataset)
+
+        if redraw_seed is not None:
+            rng = Random(redraw_seed)
+            if "random_value" in ds.column_names:
+                ds = ds.remove_columns("random_value")
+            ds = ds.add_column("random_value", [rng.random() for _ in range(len(ds))])
 
         if self.dataset_sampler is not None:
             ds = self.dataset_sampler.create_sample(ds)

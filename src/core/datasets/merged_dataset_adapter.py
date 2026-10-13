@@ -18,6 +18,7 @@ class MergedDatasetAdapter(AbstractDatasetAdapter):
         path_override: str | None = None,
         shuffle: bool = False,
         shuffle_seed: int | None = None,
+        redraw_seed: int | None = None,
     ) -> Dataset:
         # Every sub-adapter reads the same source: path_override (e.g. the resampling per-epoch
         # parquet) when given, otherwise each adapter's own configured path. Each applies its own
@@ -30,6 +31,8 @@ class MergedDatasetAdapter(AbstractDatasetAdapter):
                 strict=True,
                 shuffle=shuffle,
                 shuffle_seed=None if shuffle_seed is None else shuffle_seed + adapter_index,
+                # Share draws across children so a smaller weighted sample stays nested.
+                redraw_seed=redraw_seed,
             )
             for adapter_index, adapter in enumerate(self.dataset_adapters)
         ]

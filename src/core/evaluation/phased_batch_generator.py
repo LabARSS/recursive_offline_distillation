@@ -459,7 +459,16 @@ class BatchGenerator:
             )
 
         self.pad_token_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id
-        self.eos_token_id = tokenizer.eos_token_id
+        # The model can define several EOS tokens while the tokenizer exposes
+        # just one (Phi-4-mini uses both <|end|> and <|endoftext|>).
+        model_eos_ids = getattr(getattr(model, "generation_config", None), "eos_token_id", None)
+        if model_eos_ids is None:
+            model_eos_ids = getattr(model.config, "eos_token_id", None)
+        if isinstance(model_eos_ids, int):
+            model_eos_ids = [model_eos_ids]
+        self.eos_token_ids = set(model_eos_ids or [])
+        if tokenizer.eos_token_id is not None:
+            self.eos_token_ids.add(tokenizer.eos_token_id)
         self._effective_batch_size = max_batch_size
         self._cache = None
         self._vram_safe_margin = 0.10  # reserve 10% of total VRAM as buffer
@@ -753,6 +762,14 @@ class BatchGenerator:
                         slot.thinking_budget_exhausted = ckpt_row["thinking_budget_exhausted"]
                     elif resume_thinking_exhausted is not None:
                         slot.thinking_budget_exhausted = resume_thinking_exhausted[i]
+
+                # Prefill already sampled the first token. Do not decode again
+                # if it ended the response (also applies to a resumed seed).
+                if slot.generated_ids[-1] in self.eos_token_ids:
+                    results[i] = slot.generated_ids
+                    thinking_exhausted_flags[i] = slot.thinking_budget_exhausted
+                    pbar.update(1)
+                    continue
 
                 # Stage KV off the GPU (RAM, or disk once over threshold)
                 slot_queue.append(kv_store.stage(slot, valid_len, keys, vals))
@@ -1144,7 +1161,7 @@ class BatchGenerator:
                 for batch_idx, slot in active:
                     last_token = slot.generated_ids[-1]
                     n = len(slot.generated_ids)
-                    hit_eos = last_token == self.eos_token_id
+                    hit_eos = last_token in self.eos_token_ids
                     hit_global = n >= self.max_new_tokens
                     # Carry boundary (length-stage cap): stop without finishing so the
                     # caller pools this sequence across chunks and re-prefills it next

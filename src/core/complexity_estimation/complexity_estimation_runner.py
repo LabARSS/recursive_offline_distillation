@@ -49,6 +49,7 @@ class ComplexityEstimationRunner:
         invalid_answers = 0
         processed_rows = 0
         new_processed_rows = 0
+        token_ids_field_name = f"{self.config.answer_field_name}_token_ids"
 
         if os.path.exists(self.tmp_path()):
             # A partially-completed run periodically flushes progress to .tmp (every save_every rows)
@@ -70,6 +71,9 @@ class ComplexityEstimationRunner:
         for field_name in self.complexity_estimator.schema.keys():
             if field_name not in ds.column_names:
                 ds = ds.add_column(field_name, [None] * len(ds))
+
+        if token_ids_field_name not in ds.column_names:
+            ds = ds.add_column(token_ids_field_name, [None] * len(ds))
 
         df = ds.to_pandas()
 
@@ -100,6 +104,9 @@ class ComplexityEstimationRunner:
 
             input_length = len(row.input_ids)
             response_raw = outputs.sequences[0, input_length:]
+            # Persist every generated token before decoding/verification, including special
+            # tokens and whitespace that would otherwise disappear from failed answers.
+            df.at[index, token_ids_field_name] = response_raw.tolist()
 
             response = dataset_adapter.dataset.tokenizer.decode(response_raw, skip_special_tokens=True).strip()
 
@@ -130,7 +137,8 @@ class ComplexityEstimationRunner:
                     print(f"Processed: {df.loc[index]}")
             except InvalidAnswerError:
                 # Expected: the model didn't emit a parseable answer (e.g. drifted to a thinking
-                # token). Leave entropy_value unset (NaN) so it is backfilled; count it quietly.
+                # token). Leave entropy_value unset (NaN) so it is backfilled; the raw token IDs
+                # remain available in the parquet for diagnosis.
                 invalid_answers += 1
             except Exception as ex:
                 print(f"Error processing row {row.row_id}: {ex}")
