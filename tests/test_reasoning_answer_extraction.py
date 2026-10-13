@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from core.datasets.gpqa import GPQAReasoningResponseDataset
 from core.datasets.gsm8k.gsm8k_reasoning_response_dataset import GSM8KReasoningResponseDataset
 from core.datasets.hendrycks_math import HendrycksMathReasoningResponseDataset
 from core.datasets.mmlu.mmlu_reasoning_response_dataset import MMLUReasoningResponseDataset
@@ -16,8 +17,9 @@ from core.utils.cot_answers import CHAT_END_TOKENS
         (GSM8KReasoningResponseDataset, "18", "99"),
         (HendrycksMathReasoningResponseDataset, "18", "99"),
         (MMLUReasoningResponseDataset, "a", "b"),
+        (GPQAReasoningResponseDataset, "a", "b"),
     ],
-    ids=["gsm8k", "math", "mmlu"],
+    ids=["gsm8k", "math", "mmlu", "gpqa"],
 )
 def dataset(request):
     dataset_cls, gold, wrong = request.param
@@ -28,6 +30,26 @@ def dataset(request):
         all_special_tokens=["<think>", "</think>", "<|endoftext|>", "<pad>"],
     )
     return dataset_cls(tokenizer, QADatasetConfig(path="unused", dataset_id="test")), gold, wrong
+
+
+def test_gpqa_training_preserves_options_and_uses_the_teacher_answer():
+    tokenizer = SimpleNamespace(thinking_start_token="<think>", thinking_end_token="</think>")
+    ds = GPQAReasoningResponseDataset(tokenizer, QADatasetConfig(path="unused", dataset_id="gpqa"))
+    row = {
+        "question_id": "17",
+        "question": " Choose the correct option. ",
+        "options": "['First', 'Second', 'Third', 'Fourth']",
+        "answer": "B",
+        "distill_reasoning": " The teacher chose First. ",
+        "distill_answer": " A ",
+    }
+
+    assert ds.user_prompt(row) == (
+        "Question: Choose the correct option.\nOptions:\na. First\nb. Second\nc. Third\nd. Fourth\n"
+    )
+    assert "Choose a correct option letter" in ds.system_prompt(row)
+    assert ds.row_id(row) == "17"
+    assert ds.assistant_response(row) == "<think>The teacher chose First.</think>a"
 
 
 @pytest.mark.parametrize("suffix", ["<|end|>", "\n<|end|><|endoftext|>", "<|end|>\n<|end|>"])
