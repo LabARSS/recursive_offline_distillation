@@ -9,7 +9,7 @@ Usage:
 from multiprocessing import freeze_support
 from pathlib import Path
 
-from core.datasets.hendrycks_math import HendrycksMathDirectResponseDataset
+from core.datasets.hendrycks_math.hendrycks_math_detailed_distillation_dataset import HendrycksMathDistillationDataset
 from core.datasets.qa_dataset import QADatasetConfig
 from core.distillation.distill import DistillationConfig, distill_on_dataset
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     repo_root = Path(__file__).resolve().parents[5]
     output_path = (
         repo_root
-        / "data/out/distillation/hendrycks_math_distilled_deepseek_v4_flash_regenerate_incorrect_w_large.parquet"
+        / "data/out/distillation/hendrycks_math_distilled_detailed_raw_deepseek_v4_flash_regenerate_incorrect_w_large.parquet"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -27,10 +27,13 @@ if __name__ == "__main__":
         DistillationConfig(
             out_filename=str(output_path),
             model="~deepseek/deepseek-pro-latest",
-            dataset=HendrycksMathDirectResponseDataset(
+            dataset=HendrycksMathDistillationDataset(
                 tokenizer=None,  # type: ignore[reportArgumentType]
                 config=QADatasetConfig(
-                    path=str(repo_root / "data/out/distillation/hendrycks_math_distilled_deepseek_v4_flash.parquet"),
+                    path=str(
+                        repo_root
+                        / "data/out/distillation/hendrycks_math_distilled_detailed_raw_deepseek_v4_flash.parquet"
+                    ),
                     dataset_id="hendrycks_math_distilled_deepseek_v4_flash",
                 ),
             ),
