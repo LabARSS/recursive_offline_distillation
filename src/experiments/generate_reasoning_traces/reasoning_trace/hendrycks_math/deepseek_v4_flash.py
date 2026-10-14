@@ -17,7 +17,9 @@ if __name__ == "__main__":
     freeze_support()
 
     repo_root = Path(__file__).resolve().parents[5]
-    output_path = repo_root / "data/out/distillation/hendrycks_math_distilled_detailed_raw_deepseek_v4_flash.parquet"
+    output_path = (
+        repo_root / "data/out/distillation/hendrycks_math_distilled_extra_detailed_raw_deepseek_v4_flash.parquet"
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     distill_on_dataset(

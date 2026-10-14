@@ -19,7 +19,7 @@ if __name__ == "__main__":
     repo_root = Path(__file__).resolve().parents[5]
     output_path = (
         repo_root
-        / "data/out/distillation/hendrycks_math_distilled_detailed_raw_deepseek_v4_flash_regenerate_incorrect_w_large.parquet"
+        / "data/out/distillation/hendrycks_math_distilled_extra_detailed_raw_deepseek_v4_flash_regenerate_incorrect_w_large.parquet"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
                 config=QADatasetConfig(
                     path=str(
                         repo_root
-                        / "data/out/distillation/hendrycks_math_distilled_detailed_raw_deepseek_v4_flash.parquet"
+                        / "data/out/distillation/hendrycks_math_distilled_extra_detailed_raw_deepseek_v4_flash.parquet"
                     ),
                     dataset_id="hendrycks_math_distilled_deepseek_v4_flash",
                 ),
