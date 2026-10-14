@@ -17,13 +17,13 @@ if __name__ == "__main__":
     freeze_support()
 
     repo_root = Path(__file__).resolve().parents[5]
-    output_path = repo_root / "data/out/distillation/hendrycks_math_distilled_deepseek_v4_flash.parquet"
+    output_path = repo_root / "data/out/distillation/hendrycks_math_distilled_deepseek_v4_pro.parquet"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     distill_on_dataset(
         DistillationConfig(
             out_filename=str(output_path),
-            model="~deepseek/deepseek-flash-latest",
+            model="~deepseek/deepseek-pro-latest",
             dataset=HendrycksMathDirectResponseDataset(
                 tokenizer=None,  # type: ignore[reportArgumentType]
                 config=QADatasetConfig(
