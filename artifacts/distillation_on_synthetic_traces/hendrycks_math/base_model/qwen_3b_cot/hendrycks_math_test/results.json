@@ -1,7 +1,7 @@
 {
-  "accuracy": 0.0876,
+  "accuracy": 0.6166,
   "total": 5000,
-  "correct": 438,
-  "num_truncated": 107,
+  "correct": 3083,
+  "num_truncated": 100,
   "model_path": "Qwen/Qwen2.5-3B-Instruct"
 }
