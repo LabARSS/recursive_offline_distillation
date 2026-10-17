@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.3182,
+  "total": 5000,
+  "correct": 1591,
+  "num_truncated": 54,
+  "model_path": "/src/recursive_offline_distillation/src/experiments/distillation_on_synthetic_traces/hendrycks_math/../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/direct_reasoning_trace/llama_3b_head_truncated8192/checkpoint-2240"
+}
