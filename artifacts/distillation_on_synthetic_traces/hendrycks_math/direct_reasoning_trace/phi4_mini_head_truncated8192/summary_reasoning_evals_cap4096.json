@@ -1,0 +1,44 @@
+{
+  "hendrycks_math_test_cap4096": [
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-216",
+      "accuracy": 0.5214,
+      "total": 5000,
+      "correct": 2607,
+      "num_truncated": 387
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-540",
+      "accuracy": 0.5262,
+      "total": 5000,
+      "correct": 2631,
+      "num_truncated": 256
+    },
+    {
+      "epoch": 10.0,
+      "checkpoint": "checkpoint-1080",
+      "accuracy": 0.479,
+      "total": 5000,
+      "correct": 2395,
+      "num_truncated": 142
+    },
+    {
+      "epoch": 15.0,
+      "checkpoint": "checkpoint-1620",
+      "accuracy": 0.4582,
+      "total": 5000,
+      "correct": 2291,
+      "num_truncated": 175
+    },
+    {
+      "epoch": 20.0,
+      "checkpoint": "checkpoint-2160",
+      "accuracy": 0.4464,
+      "total": 5000,
+      "correct": 2232,
+      "num_truncated": 147
+    }
+  ]
+}
