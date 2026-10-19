@@ -1,0 +1,9 @@
+from experiments.distillation_on_synthetic_traces.hendrycks_math.shared import run
+
+run(
+    model_name="llama_3b",
+    relative_out_path="./self_distillation/llama_3b",
+    train_dataset="hendrycks_math_self_distilled_llama_3b",
+    save_schedule=[1, 2, 5],
+    max_thinking_tokens=4096,
+)
