@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.4696,
+  "total": 5000,
+  "correct": 2348,
+  "num_truncated": 159,
+  "model_path": "/src/recursive_offline_distillation/src/experiments/distillation_on_synthetic_traces/hendrycks_math/../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/self_distillation/llama_3b/checkpoint-510"
+}
