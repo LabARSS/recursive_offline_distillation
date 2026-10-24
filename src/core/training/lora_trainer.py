@@ -6,13 +6,18 @@ from transformers import AutoModelForCausalLM
 from transformers.modeling_utils import PreTrainedModel
 
 from core.training.base_trainer import BaseTrainer, BaseTrainerConfig, BaseTrainingArgs
-from core.training.callbacks.save_thinking_token_rows import SaveThinkingTokenRowsCallback
+from core.training.callbacks.save_thinking_token_rows import (
+    SaveThinkingTokenRowsCallback,
+    restore_thinking_token_rows,
+)
 from core.training.row_scoped_embedding_training import (
     RowScopedSnapshot,
     assert_no_row_drift,
     install_row_scoped_grad,
 )
 from core.training.thinking_tokens import new_token_ids
+from core.utils.last_checkpoint_dir import get_last_checkpoint_dir
+from core.utils.logger import logger
 
 
 class LoRATrainingArgs(BaseTrainingArgs):
@@ -120,6 +125,13 @@ class LoRATrainer[TConfig: LoRATrainerConfig = LoRATrainerConfig](BaseTrainer[TC
 
     @override
     def _run_training(self, trainer):
+        if self.config.lora_training_args.train_thinking_token_embeddings:
+            assert self._snapshot is not None
+            # Same probe BaseTrainer._run_training uses to decide whether to resume.
+            checkpoint_dir = get_last_checkpoint_dir(self.config.out_path)
+            if checkpoint_dir is not None and (checkpoint_dir / "trainer_state.json").exists():
+                restore_thinking_token_rows(trainer.model, self._snapshot.new_ids, checkpoint_dir)
+                logger.info(f"Restored thinking-token rows from {checkpoint_dir}")
         super()._run_training(trainer)
         if self.config.lora_training_args.train_thinking_token_embeddings:
             assert self._snapshot is not None
