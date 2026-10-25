@@ -1,0 +1,28 @@
+{
+  "hendrycks_math_test_cap4096": [
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-390",
+      "accuracy": 0.4804,
+      "total": 5000,
+      "correct": 2402,
+      "num_truncated": 487
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-975",
+      "accuracy": 0.4446,
+      "total": 5000,
+      "correct": 2223,
+      "num_truncated": 130
+    },
+    {
+      "epoch": 10.0,
+      "checkpoint": "checkpoint-1950",
+      "accuracy": 0.4262,
+      "total": 5000,
+      "correct": 2131,
+      "num_truncated": 45
+    }
+  ]
+}
