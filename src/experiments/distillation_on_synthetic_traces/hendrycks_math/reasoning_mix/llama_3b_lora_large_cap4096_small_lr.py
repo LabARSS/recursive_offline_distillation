@@ -1,0 +1,12 @@
+from core.training.lora_trainer import LoRASpecificTrainingArgsLarge
+from experiments.distillation_on_synthetic_traces.hendrycks_math.shared import run
+
+run(
+    model_name="llama_3b",
+    relative_out_path="./reasoning_mix/llama_3b_lora_large_small_lr",
+    train_dataset="hendrycks_math_reasoning_mix_llama_3b",
+    save_schedule=[1, 2, 5],
+    max_thinking_tokens=4096,
+    lora_training_args=LoRASpecificTrainingArgsLarge(),
+    learning_rate=1e-5,
+)
