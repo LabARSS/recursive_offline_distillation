@@ -20,6 +20,7 @@ Usage:
 
 Outputs:
   data/out/distillation/hendrycks_math_reasoning_mix_llama_3b.parquet
+  data/out/distillation/hendrycks_math_reasoning_mix_omi2_qwen3.parquet  (only the omi2_math and qwen3_math8k rows)
 """
 
 import json
@@ -45,6 +46,7 @@ TRAIN_PATH = ROOT / "data/source/hendrycks_math/hendrycks_math_train.parquet"
 OMI2_PATH = DISTILL_DIR / "hendrycks_math_openmathinstruct2_math_all2sol_aug7000.parquet"
 SELF_PATH = DISTILL_DIR / "hendrycks_math_self_distilled_llama_3b.parquet"
 OUTPUT_PATH = DISTILL_DIR / "hendrycks_math_reasoning_mix_llama_3b.parquet"
+OMI2_QWEN3_OUTPUT_PATH = DISTILL_DIR / "hendrycks_math_reasoning_mix_omi2_qwen3.parquet"
 COLUMNS = ["question", "answer", "distill_reasoning", "distill_answer", "source"]
 
 
@@ -163,6 +165,11 @@ def main():
     out.to_parquet(OUTPUT_PATH, index=False)
     print(f"Saved {len(out)} rows to {OUTPUT_PATH}: {out['source'].value_counts().to_dict()}")
     print(out.groupby("source")["distill_reasoning"].apply(lambda s: s.str.len().median()).to_dict(), "median reasoning chars")
+
+    omi2_qwen3 = out[out["source"].isin(["omi2_math", "qwen3_math8k"])].reset_index(drop=True)
+    omi2_qwen3["question_id"] = [str(i) for i in range(len(omi2_qwen3))]
+    omi2_qwen3.to_parquet(OMI2_QWEN3_OUTPUT_PATH, index=False)
+    print(f"Saved {len(omi2_qwen3)} rows to {OMI2_QWEN3_OUTPUT_PATH}: {omi2_qwen3['source'].value_counts().to_dict()}")
 
 
 if __name__ == "__main__":

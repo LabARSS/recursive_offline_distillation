@@ -69,6 +69,12 @@ class LoRASpecificTrainingArgsLarge(LoRASpecificTrainingArgs):
     lora_dropout: float = 0.05
 
 
+class LoRASpecificTrainingArgsXLarge(LoRASpecificTrainingArgs):
+    r: int = 128
+    alpha: int = 256
+    lora_dropout: float = 0.05
+
+
 # Phi-4-mini is Phi3ForCausalLM, which FUSES the attention and MLP input
 # projections into qkv_proj / gate_up_proj. The default target_modules list
 # (q/k/v/gate/up_proj) is Llama/Qwen naming and matches NONE of these, so PEFT
