@@ -1,0 +1,28 @@
+{
+  "gpqa_random_test_cap8192": [
+    {
+      "epoch": 1.0,
+      "checkpoint": "checkpoint-7",
+      "accuracy": 0.0,
+      "total": 109,
+      "correct": 0,
+      "num_truncated": 72
+    },
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-14",
+      "accuracy": 0.11926605504587157,
+      "total": 109,
+      "correct": 13,
+      "num_truncated": 55
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-35",
+      "accuracy": 0.22935779816513763,
+      "total": 109,
+      "correct": 25,
+      "num_truncated": 5
+    }
+  ]
+}

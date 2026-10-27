@@ -74,7 +74,7 @@ def run(
     if not run_evaluation:
         return
 
-    for max_thinking_tokens in [4096]:
+    for max_thinking_tokens in [8192]:
         eval_dataset_id = f"gpqa_random_test_cap{max_thinking_tokens}"
         summary_filename = f"summary_reasoning_evals_cap{max_thinking_tokens}.json"
 
