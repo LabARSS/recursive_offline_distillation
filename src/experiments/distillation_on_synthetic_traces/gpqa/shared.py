@@ -14,6 +14,7 @@ from core.evaluation.multi_checkpoint_evaluator import (
 from core.training.base_trainer import PackingConfig
 from core.training.lora_trainer import (
     LoRASpecificTrainingArgs,
+    LoRASpecificTrainingArgsLarge,
     LoRATrainer,
     LoRATrainerConfig,
     LoRATrainingArgs,
@@ -42,7 +43,7 @@ def run(
         tokenizer.pad_token = tokenizer.eos_token
     setup_thinking_tokens(tokenizer)
 
-    lora_training_args = lora_training_args or LoRASpecificTrainingArgs()
+    lora_training_args = lora_training_args or LoRASpecificTrainingArgsLarge()
     lora_training_args.train_thinking_token_embeddings = True
     if model_name == "phi4_mini":
         lora_training_args.target_modules = phi4_mini_lora_target_modules

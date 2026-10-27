@@ -8,5 +8,5 @@ if __name__ == "__main__":
         model_name="llama_3b",
         relative_out_path="./direct_reasoning_trace/llama_3b_head_truncated20000",
         train_dataset="train_distilled_deepseek_v4_flash_extend_w_v4_pro_head20000",
-        save_schedule=[2, 5, 10, 15, 20],
+        save_schedule=[1, 2, 5],
     )
