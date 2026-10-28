@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.05504587155963303,
+  "total": 109,
+  "correct": 6,
+  "num_truncated": 52,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/gpqa/corrected_reasoning_data_mix/llama_3b/checkpoint-70"
+}

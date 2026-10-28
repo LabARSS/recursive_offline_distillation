@@ -79,9 +79,7 @@ def run(
             out_path=out_path,
             model_id=model_path,
             train_dataset=train_dataset_adapter,
-            training_args=LoRATrainingArgs(
-                num_train_epochs=save_schedule[-1], per_device_train_batch_size=1, learning_rate=1e-5
-            ),
+            training_args=LoRATrainingArgs(num_train_epochs=save_schedule[-1], per_device_train_batch_size=1),
             lora_training_args=lora_training_args,
             packing=PackingConfig(budget=packing_budget(model_name)),
             save_schedule=save_schedule,
