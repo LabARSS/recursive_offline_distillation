@@ -11,19 +11,19 @@ if __name__ == "__main__":
         DistillationConfig(
             out_filename=str(
                 Path(__file__).parent.joinpath(
-                    "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash_extend_w_v4_pro.parquet"
+                    "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash_extend_w_v4_pro_short.parquet"
                 )
             ),
-            model="~deepseek/deepseek-pro-latest",
+            model="qwen/qwen3.8-max-0902",
             dataset=GPQASingleTokenResponseDataset(
                 tokenizer=None,  # type: ignore[reportArgumentType]
                 config=QADatasetConfig(
                     path=str(
                         Path(__file__).parent.joinpath(
-                            "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash.parquet"
+                            "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash_extend_w_v4_pro_short.parquet"
                         )
                     ),
-                    dataset_id="gsm8k",
+                    dataset_id="gpqa",
                 ),
             ),
             regenerate_incorrect=True,

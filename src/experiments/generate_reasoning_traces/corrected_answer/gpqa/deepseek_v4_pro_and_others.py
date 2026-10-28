@@ -25,16 +25,16 @@ if __name__ == "__main__":
     df = distill_on_dataset(
         DistillationConfig(
             out_filename=out_filename,
-            model="~deepseek/deepseek-pro-latest",
+            model="moonshotai/kimi-k3.1-pro",
             dataset=GPQACorrectedAnswerDataset(
                 tokenizer=None,  # type: ignore[reportArgumentType]
                 config=QADatasetConfig(
                     path=str(
                         Path(__file__).parent.joinpath(
-                            "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash_extend_w_v4_pro_head20000.parquet"
+                            "../../../../../data/out/splits/random/gpqa/train_distilled_deepseek_v4_flash_extend_w_v4_pro_short_clean.parquet"
                         )
                     ),
-                    dataset_id="train_distilled_deepseek_v4_flash_extend_w_v4_pro_head20000",
+                    dataset_id="train_distilled_deepseek_v4_flash_extend_w_v4_pro_short_clean",
                 ),
             ),
             field_reasoning="corrected_reasoning",
