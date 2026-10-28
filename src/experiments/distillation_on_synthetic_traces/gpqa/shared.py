@@ -24,6 +24,7 @@ from core.training.lora_trainer import (
 )
 from core.training.packing_budgets import packing_budget
 from core.training.thinking_tokens import setup_thinking_tokens
+from experiments.distillation_on_synthetic_traces.gpqa.base_model.shared import self_distill_dataset_name
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -37,6 +38,7 @@ def run(
     run_evaluation: bool = True,
     lora_training_args: LoRASpecificTrainingArgs | None = None,
     data_mix: bool = False,
+    self_distillation: bool = False,
 ):
     model_path = str(REPO_ROOT / "artifacts/base_models_v0" / model_name)
     out_path = str(REPO_ROOT / "artifacts/distillation_on_synthetic_traces/gpqa" / relative_out_path)
@@ -52,27 +54,41 @@ def run(
         lora_training_args.target_modules = phi4_mini_lora_target_modules
 
     train_dataset_path = str(REPO_ROOT / "data/out/splits/random/gpqa" / f"{train_dataset}.parquet")
-    train_dataset_adapter = CausalDatasetAdapter(
-        dataset=GPQAReasoningResponseDataset(
-            config=QADatasetConfig(path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}"),
-            tokenizer=tokenizer,
+    train_dataset_adapters = [
+        CausalDatasetAdapter(
+            dataset=GPQAReasoningResponseDataset(
+                config=QADatasetConfig(path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}"),
+                tokenizer=tokenizer,
+            )
         )
-    )
+    ]
+    if self_distillation:
+        # Add the base model's own correct CoT replies so training keeps the answers it already gets right.
+        self_distill_dataset = self_distill_dataset_name(model_name)
+        train_dataset_adapters.append(
+            CausalDatasetAdapter(
+                dataset=GPQAReasoningResponseDataset(
+                    config=QADatasetConfig(
+                        path=str(REPO_ROOT / "data/out/splits/random/gpqa" / f"{self_distill_dataset}.parquet"),
+                        dataset_id=f"gpqa_{self_distill_dataset}",
+                    ),
+                    tokenizer=tokenizer,
+                )
+            )
+        )
     if data_mix:
         # Mix in single-token answers for the same questions (no sampling, full set every epoch).
-        train_dataset_adapter = MergedDatasetAdapter(
-            [
-                train_dataset_adapter,
-                CausalDatasetAdapter(
-                    dataset=GPQASingleTokenResponseDataset(
-                        config=QADatasetConfig(
-                            path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}_single_token"
-                        ),
-                        tokenizer=tokenizer,
-                    )
-                ),
-            ]
+        train_dataset_adapters.append(
+            CausalDatasetAdapter(
+                dataset=GPQASingleTokenResponseDataset(
+                    config=QADatasetConfig(path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}_single_token"),
+                    tokenizer=tokenizer,
+                )
+            )
         )
+    train_dataset_adapter = (
+        train_dataset_adapters[0] if len(train_dataset_adapters) == 1 else MergedDatasetAdapter(train_dataset_adapters)
+    )
 
     trainer = LoRATrainer(
         config=LoRATrainerConfig(
