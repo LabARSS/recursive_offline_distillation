@@ -8,6 +8,6 @@ if __name__ == "__main__":
         model_name="llama_3b",
         relative_out_path="./corrected_reasoning_self_distill/llama_3b",
         train_dataset="train_corrected_answer_deepseek_v4_pro_concat",
-        save_schedule=[2, 5, 8, 10],
+        save_schedule=[2, 5, 10, 15, 20],
         self_distillation=True,
     )

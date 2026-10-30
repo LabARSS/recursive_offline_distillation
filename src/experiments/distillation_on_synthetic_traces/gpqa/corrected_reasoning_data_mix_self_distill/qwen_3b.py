@@ -8,7 +8,7 @@ if __name__ == "__main__":
         model_name="qwen_3b",
         relative_out_path="./corrected_reasoning_data_mix_self_distill/qwen_3b",
         train_dataset="train_corrected_answer_deepseek_v4_pro_concat",
-        save_schedule=[2, 5, 8, 10],
+        save_schedule=[2, 5, 10, 15, 20],
         data_mix=True,
         self_distillation=True,
     )
