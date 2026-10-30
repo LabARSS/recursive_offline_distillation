@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.25688073394495414,
+  "total": 109,
+  "correct": 28,
+  "num_truncated": 12,
+  "model_path": "/workspace/artifacts/distillation_on_synthetic_traces/gpqa/corrected_reasoning_data_mix_self_distill/qwen_3b/checkpoint-255"
+}

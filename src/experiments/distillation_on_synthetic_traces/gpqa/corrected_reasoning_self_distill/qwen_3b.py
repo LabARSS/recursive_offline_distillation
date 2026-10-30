@@ -6,8 +6,9 @@ if __name__ == "__main__":
     freeze_support()
     run(
         model_name="qwen_3b",
-        relative_out_path="./corrected_reasoning_self_distill/qwen_3b",
+        relative_out_path="./corrected_reasoning_self_distill_1e5/qwen_3b",
         train_dataset="train_corrected_answer_deepseek_v4_pro_concat",
         save_schedule=[2, 5, 10, 15, 20],
         self_distillation=True,
+        learning_rate=1e-5,
     )

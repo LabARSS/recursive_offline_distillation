@@ -4,7 +4,9 @@ from transformers import AutoTokenizer
 
 from core.datasets.causal_dataset_adapter import CausalDatasetAdapter
 from core.datasets.gpqa import GPQAReasoningResponseDataset
-from core.datasets.gpqa.gpqa_single_token_response_dataset import GPQASingleTokenResponseDataset
+from core.datasets.gpqa.gpqa_single_token_response_dataset import (
+    GPQASingleTokenResponseDataset,
+)
 from core.datasets.merged_dataset_adapter import MergedDatasetAdapter
 from core.datasets.qa_dataset import QADatasetConfig
 from core.datasets.qa_dataset_adapter import QADatasetAdapter
@@ -24,7 +26,9 @@ from core.training.lora_trainer import (
 )
 from core.training.packing_budgets import packing_budget
 from core.training.thinking_tokens import setup_thinking_tokens
-from experiments.distillation_on_synthetic_traces.gpqa.base_model.shared import self_distill_dataset_name
+from experiments.distillation_on_synthetic_traces.gpqa.base_model.shared import (
+    self_distill_dataset_name,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -39,9 +43,14 @@ def run(
     lora_training_args: LoRASpecificTrainingArgs | None = None,
     data_mix: bool = False,
     self_distillation: bool = False,
+    learning_rate=1e-4,
 ):
     model_path = str(REPO_ROOT / "artifacts/base_models_v0" / model_name)
-    out_path = str(REPO_ROOT / "artifacts/distillation_on_synthetic_traces/gpqa" / relative_out_path)
+    out_path = str(
+        REPO_ROOT
+        / "artifacts/distillation_on_synthetic_traces/gpqa"
+        / relative_out_path
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -53,11 +62,15 @@ def run(
     if model_name == "phi4_mini":
         lora_training_args.target_modules = phi4_mini_lora_target_modules
 
-    train_dataset_path = str(REPO_ROOT / "data/out/splits/random/gpqa" / f"{train_dataset}.parquet")
+    train_dataset_path = str(
+        REPO_ROOT / "data/out/splits/random/gpqa" / f"{train_dataset}.parquet"
+    )
     train_dataset_adapters = [
         CausalDatasetAdapter(
             dataset=GPQAReasoningResponseDataset(
-                config=QADatasetConfig(path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}"),
+                config=QADatasetConfig(
+                    path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}"
+                ),
                 tokenizer=tokenizer,
             )
         )
@@ -69,7 +82,11 @@ def run(
             CausalDatasetAdapter(
                 dataset=GPQAReasoningResponseDataset(
                     config=QADatasetConfig(
-                        path=str(REPO_ROOT / "data/out/splits/random/gpqa" / f"{self_distill_dataset}.parquet"),
+                        path=str(
+                            REPO_ROOT
+                            / "data/out/splits/random/gpqa"
+                            / f"{self_distill_dataset}.parquet"
+                        ),
                         dataset_id=f"gpqa_{self_distill_dataset}",
                     ),
                     tokenizer=tokenizer,
@@ -81,13 +98,18 @@ def run(
         train_dataset_adapters.append(
             CausalDatasetAdapter(
                 dataset=GPQASingleTokenResponseDataset(
-                    config=QADatasetConfig(path=train_dataset_path, dataset_id=f"gpqa_{train_dataset}_single_token"),
+                    config=QADatasetConfig(
+                        path=train_dataset_path,
+                        dataset_id=f"gpqa_{train_dataset}_single_token",
+                    ),
                     tokenizer=tokenizer,
                 )
             )
         )
     train_dataset_adapter = (
-        train_dataset_adapters[0] if len(train_dataset_adapters) == 1 else MergedDatasetAdapter(train_dataset_adapters)
+        train_dataset_adapters[0]
+        if len(train_dataset_adapters) == 1
+        else MergedDatasetAdapter(train_dataset_adapters)
     )
 
     trainer = LoRATrainer(
@@ -95,7 +117,11 @@ def run(
             out_path=out_path,
             model_id=model_path,
             train_dataset=train_dataset_adapter,
-            training_args=LoRATrainingArgs(num_train_epochs=save_schedule[-1], per_device_train_batch_size=1),
+            training_args=LoRATrainingArgs(
+                num_train_epochs=save_schedule[-1],
+                per_device_train_batch_size=1,
+                learning_rate=learning_rate,
+            ),
             lora_training_args=lora_training_args,
             packing=PackingConfig(budget=packing_budget(model_name)),
             save_schedule=save_schedule,
@@ -118,7 +144,9 @@ def run(
                 eval_dataset=QADatasetAdapter(
                     dataset=GPQAReasoningResponseDataset(
                         config=QADatasetConfig(
-                            path=str(REPO_ROOT / "data/out/splits/random/gpqa/test.parquet"),
+                            path=str(
+                                REPO_ROOT / "data/out/splits/random/gpqa/test.parquet"
+                            ),
                             dataset_id=eval_dataset_id,
                         ),
                         tokenizer=tokenizer,
