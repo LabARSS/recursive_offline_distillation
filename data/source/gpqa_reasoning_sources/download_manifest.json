@@ -1,0 +1,48 @@
+{
+  "sources": {
+    "original": {
+      "repo": "Idavidrein/gpqa",
+      "revision": "83022cefff930aea54f654c0b282e74b9eeda5c6",
+      "download_repo": "LLMcompe-Team-Watanabe/gpqa_preprocess",
+      "download_revision": "d96df8248b934148a373ea22c5ab47d51e81fb8d",
+      "filename": "data/test_gpqa_extended-00000-of-00001.parquet",
+      "local_file": "data/source/gpqa_reasoning_sources/original/gpqa_extended_public.parquet",
+      "rows": 546,
+      "sha256": "4d75640c9f4b900db81a16f501571137ee209e8b1de9d9733703490061e8f021",
+      "official_requires_authentication": true
+    },
+    "sxiong": {
+      "repo": "sxiong/GPQA-trajectory",
+      "revision": "1bf2fda353e44d64786f119b33658a2815fe7520",
+      "local_file": "data/source/gpqa_reasoning_sources/sxiong_written_solutions.parquet",
+      "rows": 1243,
+      "split_rows": {
+        "train": 410,
+        "test": 833
+      },
+      "retained_columns": [
+        "id",
+        "problem_id",
+        "domain",
+        "subdomain",
+        "question",
+        "explanation",
+        "answer",
+        "content",
+        "correct",
+        "model",
+        "source_split"
+      ],
+      "sha256": "1a791088045beb5e09405d30e34293db371f7acf02ebc202259df881a0ceda1c"
+    },
+    "spawn99": {
+      "repo": "spawn99/GPQA-diamond-ClaudeR1",
+      "revision": "9808b392658446c31b8379ffb539c2b9a6b54d5d",
+      "filename": "data/train-00000-of-00001.parquet",
+      "local_file": "data/source/gpqa_reasoning_sources/spawn99_solutions.parquet",
+      "rows": 198,
+      "sha256": "f77bc6bf00253642e75be1b254e0806c2ec67bfeb970f2afb02337d01c94f14f"
+    }
+  },
+  "sxiong_hidden_reasoning_persisted": false
+}

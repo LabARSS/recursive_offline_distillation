@@ -1,0 +1,182 @@
+{
+  "output": "data/out/splits/random/gpqa/train_reasoning_mix_public.parquet",
+  "rows": 1484,
+  "unique_training_questions": 437,
+  "train_questions": 437,
+  "test_questions": 109,
+  "test_question_overlap": 0,
+  "test_id_overlap": 0,
+  "max_response_chars": 9976,
+  "character_budget": 10000,
+  "budget_definition": "len('<think>' + distill_reasoning.strip() + '</think>' + distill_answer.strip())",
+  "traces_truncated": 0,
+  "seed": 42,
+  "sources": [
+    {
+      "source": "current_corrected",
+      "source_variant": "corrected_concat",
+      "rows": 421,
+      "questions": 421,
+      "median_response_chars": 2860.0,
+      "max_response_chars": 9976
+    },
+    {
+      "source": "original_explanations",
+      "source_variant": "expert_explanation",
+      "rows": 436,
+      "questions": 436,
+      "median_response_chars": 673.0,
+      "max_response_chars": 3464
+    },
+    {
+      "source": "spawn99",
+      "source_variant": "claude_standalone",
+      "rows": 62,
+      "questions": 62,
+      "median_response_chars": 1128.5,
+      "max_response_chars": 1946
+    },
+    {
+      "source": "spawn99",
+      "source_variant": "claude_with_reasoning",
+      "rows": 88,
+      "questions": 88,
+      "median_response_chars": 395.5,
+      "max_response_chars": 953
+    },
+    {
+      "source": "spawn99",
+      "source_variant": "deepseek_r1_reasoning",
+      "rows": 31,
+      "questions": 31,
+      "median_response_chars": 6417.0,
+      "max_response_chars": 9895
+    },
+    {
+      "source": "spawn99",
+      "source_variant": "deepseek_r1_written",
+      "rows": 75,
+      "questions": 75,
+      "median_response_chars": 1603.0,
+      "max_response_chars": 2784
+    },
+    {
+      "source": "sxiong_written",
+      "source_variant": "written_solution",
+      "rows": 371,
+      "questions": 303,
+      "median_response_chars": 1644.0,
+      "max_response_chars": 5394
+    }
+  ],
+  "candidate_outcomes": [
+    {
+      "source": "current_corrected",
+      "status": "included",
+      "rows": 421
+    },
+    {
+      "source": "original_explanations",
+      "status": "included",
+      "rows": 436
+    },
+    {
+      "source": "original_explanations",
+      "status": "over_character_budget",
+      "rows": 1
+    },
+    {
+      "source": "original_explanations",
+      "status": "test_question",
+      "rows": 109
+    },
+    {
+      "source": "spawn99",
+      "status": "included",
+      "rows": 256
+    },
+    {
+      "source": "spawn99",
+      "status": "over_character_budget",
+      "rows": 44
+    },
+    {
+      "source": "spawn99",
+      "status": "source_marked_incorrect",
+      "rows": 320
+    },
+    {
+      "source": "spawn99",
+      "status": "test_question",
+      "rows": 172
+    },
+    {
+      "source": "sxiong_written",
+      "status": "included",
+      "rows": 371
+    },
+    {
+      "source": "sxiong_written",
+      "status": "over_character_budget",
+      "rows": 20
+    },
+    {
+      "source": "sxiong_written",
+      "status": "source_gold_disagrees_with_our_gold",
+      "rows": 8
+    },
+    {
+      "source": "sxiong_written",
+      "status": "source_marked_incorrect",
+      "rows": 539
+    },
+    {
+      "source": "sxiong_written",
+      "status": "source_option_set_differs",
+      "rows": 21
+    },
+    {
+      "source": "sxiong_written",
+      "status": "test_question",
+      "rows": 268
+    },
+    {
+      "source": "sxiong_written",
+      "status": "written_answer_disagrees_or_missing",
+      "rows": 16
+    }
+  ],
+  "input_files": {
+    "train": {
+      "path": "data/out/splits/random/gpqa/train_original.parquet",
+      "sha256": "9324b0b9866f13d28fa95655fa49814968e76f908eac0267a6118d20522dde6d"
+    },
+    "test": {
+      "path": "data/out/splits/random/gpqa/test.parquet",
+      "sha256": "342351b1f4dfe20369572a06e1369c5556f8ef11338774ce1215dc41037de44b"
+    },
+    "current_corrected": {
+      "path": "data/out/splits/random/gpqa/train_corrected_answer_deepseek_v4_pro_concat.parquet",
+      "sha256": "2fd4728c88c6e652a70642e8ce5972501eb9feba5a3784755a87276f90e10541"
+    },
+    "original": {
+      "path": "data/source/gpqa_reasoning_sources/original_explanations.parquet",
+      "sha256": "afe32fa6237240d1f1ce19f43ba2be348f9f9caa6d5de2a2cf605abee4a0db6e"
+    },
+    "sxiong": {
+      "path": "data/source/gpqa_reasoning_sources/sxiong_written_solutions.parquet",
+      "sha256": "1a791088045beb5e09405d30e34293db371f7acf02ebc202259df881a0ceda1c"
+    },
+    "spawn99": {
+      "path": "data/source/gpqa_reasoning_sources/spawn99_solutions.parquet",
+      "sha256": "f77bc6bf00253642e75be1b254e0806c2ec67bfeb970f2afb02337d01c94f14f"
+    }
+  },
+  "output_sha256": "334115e680d88c88d9509247e3286a9d2c7026f4e296958fdabcecaea3fdbb95",
+  "notes": [
+    "Unique question_id identifies a training trace; original_question_id is the unchanged training question ID.",
+    "External option orders are retained to preserve option references in written solutions.",
+    "Source correctness flags and exact answer alignment do not certify every reasoning step.",
+    "Raw downloaded sources can contain held-out questions; only the matched train_* files and final mix are training data."
+  ]
+}
