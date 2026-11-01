@@ -1,6 +1,6 @@
 {
   "output": "data/out/splits/random/gpqa/train_reasoning_mix_public.parquet",
-  "rows": 1484,
+  "rows": 1459,
   "unique_training_questions": 437,
   "train_questions": 437,
   "test_questions": 109,
@@ -14,10 +14,10 @@
   "sources": [
     {
       "source": "current_corrected",
-      "source_variant": "corrected_concat",
-      "rows": 421,
-      "questions": 421,
-      "median_response_chars": 2860.0,
+      "source_variant": "original_correct",
+      "rows": 396,
+      "questions": 396,
+      "median_response_chars": 2837.0,
       "max_response_chars": 9976
     },
     {
@@ -73,7 +73,12 @@
     {
       "source": "current_corrected",
       "status": "included",
-      "rows": 421
+      "rows": 396
+    },
+    {
+      "source": "current_corrected",
+      "status": "teacher_correction_excluded",
+      "rows": 25
     },
     {
       "source": "original_explanations",
@@ -172,10 +177,11 @@
       "sha256": "f77bc6bf00253642e75be1b254e0806c2ec67bfeb970f2afb02337d01c94f14f"
     }
   },
-  "output_sha256": "334115e680d88c88d9509247e3286a9d2c7026f4e296958fdabcecaea3fdbb95",
+  "output_sha256": "d1c81fe57c007f96b6c81f3eda8794a7bb61a994db97bd27c4c951a47f0af89a",
   "notes": [
     "Unique question_id identifies a training trace; original_question_id is the unchanged training question ID.",
     "External option orders are retained to preserve option references in written solutions.",
+    "Teacher traces with nonempty corrected_reasoning are excluded in full; incorrect prefixes are not retained.",
     "Source correctness flags and exact answer alignment do not certify every reasoning step.",
     "Raw downloaded sources can contain held-out questions; only the matched train_* files and final mix are training data."
   ]

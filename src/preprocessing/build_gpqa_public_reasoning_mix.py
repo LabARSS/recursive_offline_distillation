@@ -7,6 +7,8 @@ External option orders are preserved, since written explanations reference lette
 original_question_id links every unique training example to train_original.parquet.
 No reasoning is truncated. The character budget includes both thinking markers and
 the final answer letter. The original train/test and corrected files are read only.
+Teacher traces with appended answer corrections are excluded in their entirety;
+their original, incorrect reasoning must not be reused on its own.
 """
 
 from __future__ import annotations
@@ -105,17 +107,24 @@ class Trace:
     split: str = ""
     model: str = ""
     verification: str = ""
+    exclusion_reason: str = ""
 
 
 def collect_traces(corrected: pd.DataFrame, original: pd.DataFrame,
                    sxiong: pd.DataFrame, spawn: pd.DataFrame) -> list[Trace]:
     traces = []
+    if not corrected.empty and "corrected_reasoning" not in corrected.columns:
+        raise ValueError("Teacher source must retain corrected_reasoning to exclude answer corrections")
     for r in corrected.to_dict("records"):
         options = option_list(r["options"])
-        traces.append(Trace("current_corrected", "corrected_concat", str(r["question_id"]),
+        correction = r["corrected_reasoning"]
+        has_correction = pd.notna(correction) and bool(str(correction).strip())
+        traces.append(Trace("current_corrected", "corrected_concat" if has_correction else "original_correct",
+            str(r["question_id"]),
             r["question"], r["distill_reasoning"], option_text(options, r["answer"]), options,
             source_correct=bool(r["distill_ans_correct"]), source_answer=r["distill_answer"],
-            written_answer=r["distill_answer"], split="our_train", verification="exact_final_letter"))
+            written_answer=r["distill_answer"], split="our_train", verification="exact_final_letter",
+            exclusion_reason="teacher_correction_excluded" if has_correction else ""))
     for r in original.to_dict("records"):
         traces.append(Trace("original_explanations", "expert_explanation", r["source_record_id"],
             r["question"], r["explanation"], r["correct_answer_text"],
@@ -177,7 +186,9 @@ def build_mix(train: pd.DataFrame, test: pd.DataFrame, traces: list[Trace],
             local_options = option_list(target["options"])
             local_gold = option_text(local_options, target["answer"])
             options = trace.options if trace.options is not None else local_options
-            if normalize(trace.gold_text) != normalize(local_gold):
+            if trace.exclusion_reason:
+                reason = trace.exclusion_reason
+            elif normalize(trace.gold_text) != normalize(local_gold):
                 reason = "source_gold_disagrees_with_our_gold"
             elif sorted(map(normalize, options)) != sorted(map(normalize, local_options)):
                 reason = "source_option_set_differs"
@@ -272,6 +283,7 @@ def main() -> None:
         "output_sha256": file_hash(OUTPUT),
         "notes": ["Unique question_id identifies a training trace; original_question_id is the unchanged training question ID.",
             "External option orders are retained to preserve option references in written solutions.",
+            "Teacher traces with nonempty corrected_reasoning are excluded in full; incorrect prefixes are not retained.",
             "Source correctness flags and exact answer alignment do not certify every reasoning step.",
             "Raw downloaded sources can contain held-out questions; only the matched train_* files and final mix are training data."]}
     OUTPUT.with_suffix(".manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

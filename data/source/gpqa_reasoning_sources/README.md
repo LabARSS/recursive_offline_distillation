@@ -31,14 +31,21 @@ The final mixture is:
 
 `data/out/splits/random/gpqa/train_reasoning_mix_public.parquet`
 
-It contains **1,484 distinct training traces covering all 437 training questions**:
+It contains **1,459 distinct training traces covering all 437 training questions**:
 
 | Source | Traces |
 | --- | ---: |
-| Current corrected traces | 421 |
+| Original correct teacher traces | 396 |
 | Original expert explanations | 436 |
 | sxiong written solutions | 371 |
 | spawn99 solutions | 256 |
+
+All 25 teacher traces with nonempty `corrected_reasoning` are excluded in full.
+Their incorrect original prefixes are also excluded. The `current_corrected`
+source name is retained for compatibility; its included rows now have
+`source_variant="original_correct"`. Other sources are unchanged, including their
+solutions to these training questions. The audit records the removed candidates
+as `teacher_correction_excluded`. Raw teacher source files are preserved.
 
 The sxiong subset contains 299 DeepSeek-R1 written solutions and 72 source-graded
 correct written responses from other models. Both the source correctness flag and
@@ -94,3 +101,17 @@ From the repository root:
 The builder uses seed 42. Original train/test splits and current corrected traces
 are read only. The mixed artifact can be used by the existing GPQA training runner
 with `train_dataset="train_reasoning_mix_public"`.
+
+## Extended mixture with Mistral and student CoT
+
+`data/out/splits/random/gpqa/train_reasoning_mix_public_mistral_students.parquet`
+is a separate, extended dataset with **2,011 traces**. It preserves the 1,459-row
+public mixture and adds 187 Mistral Large 4.0, 104 Llama 3B, 136 Phi-4 Mini, and
+125 Qwen 3B traces. All additions have correct final answers and fit the same
+10,000-character full-target budget. Two answer-only Qwen placeholders are
+excluded. There are no exact duplicate targets and no test overlap.
+
+Build it with
+`.venv/bin/python src/preprocessing/build_gpqa_mistral_student_reasoning_mix.py`.
+Full provenance and eligibility details are in the adjacent
+`train_reasoning_mix_public_mistral_students.README.md`, manifest, and audit.

@@ -1,6 +1,10 @@
 # GPQA public reasoning mixture experiments
 
 All variants train on `data/out/splits/random/gpqa/train_reasoning_mix_public.parquet`.
+The current dataset contains 1,459 traces covering all 437 training questions.
+It excludes all 25 teacher traces with appended corrections, retaining the 396
+originally correct teacher traces and the other public sources. Results produced
+before this removal used the earlier 1,484-trace dataset.
 There are entrypoints for `llama_3b`, `phi4_mini`, and `qwen_3b` in each group:
 
 | Experiment group | Public reasoning mix | Direct-answer examples | Own correct CoT examples |

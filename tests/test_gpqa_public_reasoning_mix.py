@@ -146,3 +146,39 @@ def test_sxiong_download_projection_and_loader_ignore_hidden_reasoning():
     assert len(traces) == 1 and traces[0].reasoning == raw["content"]
     assert traces[0].written_answer == "A"
     assert "HIDDEN" not in traces[0].reasoning
+
+
+@pytest.mark.parametrize("suffix", ["Actually, choose A. Answer: a", "  revised answer  "])
+def test_excludes_entire_corrected_teacher_chain_even_when_marked_correct(split_frames, suffix):
+    train, test = split_frames
+    teacher = train.copy()
+    teacher["distill_reasoning"] = "Wrong original reasoning. Answer: d " + suffix
+    teacher["distill_answer"] = "a"
+    teacher["distill_ans_correct"] = True
+    teacher["corrected_reasoning"] = suffix
+    traces = collect_traces(teacher, pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+    out, audit = build_mix(train, test, [candidate(), *traces])
+    assert out.source.tolist() == ["original_explanations"]
+    assert not out.distill_reasoning.str.contains("Wrong original reasoning", regex=False).any()
+    assert audit.status.tolist() == ["included", "teacher_correction_excluded"]
+
+
+@pytest.mark.parametrize("suffix", [None, float("nan"), "", " \n "])
+def test_keeps_original_correct_teacher_chains_without_corrections(split_frames, suffix):
+    train, test = split_frames
+    teacher = train.copy()
+    teacher["distill_reasoning"] = "Independently correct reasoning. Answer: a"
+    teacher["distill_answer"] = "a"
+    teacher["distill_ans_correct"] = True
+    teacher["corrected_reasoning"] = suffix
+    traces = collect_traces(teacher, pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
+    out, audit = build_mix(train, test, traces)
+    assert len(out) == 1 and out.iloc[0].source_variant == "original_correct"
+    assert out.iloc[0].distill_reasoning == teacher.iloc[0].distill_reasoning
+    assert audit.status.tolist() == ["included"]
+
+
+def test_refuses_teacher_source_without_correction_metadata(split_frames):
+    train, _ = split_frames
+    with pytest.raises(ValueError, match="retain corrected_reasoning"):
+        collect_traces(train, pd.DataFrame(), pd.DataFrame(), pd.DataFrame())
