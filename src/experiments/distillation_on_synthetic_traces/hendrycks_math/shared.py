@@ -33,6 +33,7 @@ def run(
     run_evaluation: bool = True,
     lora_training_args: LoRASpecificTrainingArgs | None = None,
     learning_rate=1e-4,
+    lr_scheduler_type: str = "cosine",
 ):
     MODEL_NAME = Path(__file__).parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}").as_posix()
 
@@ -69,7 +70,10 @@ def run(
                 )
             ),
             training_args=LoRATrainingArgs(
-                num_train_epochs=save_schedule[-1], per_device_train_batch_size=1, learning_rate=learning_rate
+                num_train_epochs=save_schedule[-1],
+                per_device_train_batch_size=1,
+                learning_rate=learning_rate,
+                lr_scheduler_type=lr_scheduler_type,
             ),
             lora_training_args=lora_training_args,
             packing=PackingConfig(budget=packing_budget(model_name)),
