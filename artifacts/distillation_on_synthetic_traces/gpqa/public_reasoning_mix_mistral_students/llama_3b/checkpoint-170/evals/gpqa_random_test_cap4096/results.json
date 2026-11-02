@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.24770642201834864,
+  "total": 109,
+  "correct": 27,
+  "num_truncated": 13,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/gpqa/public_reasoning_mix_mistral_students/llama_3b/checkpoint-170"
+}

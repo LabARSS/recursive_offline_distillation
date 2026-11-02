@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.21100917431192662,
+  "total": 109,
+  "correct": 23,
+  "num_truncated": 7,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/gpqa/public_reasoning_mix_mistral_students_data_mix/qwen_3b/checkpoint-490"
+}
