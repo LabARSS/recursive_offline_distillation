@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from transformers import AutoTokenizer
 
@@ -32,8 +33,9 @@ def run(
     skip_missing_checkpoints: bool = False,
     run_evaluation: bool = True,
     lora_training_args: LoRASpecificTrainingArgs | None = None,
-    learning_rate=1e-4,
+    learning_rate=1e-5,
     lr_scheduler_type: str = "cosine",
+    dataset_cls: Any = HendrycksMathReasoningResponseDataset,
 ):
     MODEL_NAME = Path(__file__).parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}").as_posix()
 
@@ -59,7 +61,7 @@ def run(
             out_path=OUT_PATH,
             model_id=MODEL_NAME,
             train_dataset=CausalDatasetAdapter(
-                dataset=HendrycksMathReasoningResponseDataset(
+                dataset=dataset_cls(
                     config=QADatasetConfig(
                         path=Path(__file__)
                         .parent.joinpath(f"../../../../data/out/distillation/{train_dataset}.parquet")
@@ -97,7 +99,7 @@ def run(
         config=MultiCheckpointEvaluatorConfig(
             checkpoints_dir=OUT_PATH,
             eval_dataset=QADatasetAdapter(
-                dataset=HendrycksMathReasoningResponseDataset(
+                dataset=dataset_cls(
                     config=QADatasetConfig(
                         path=Path(__file__)
                         .parent.joinpath("../../../../data/source/hendrycks_math/hendrycks_math_test.parquet")
@@ -109,7 +111,7 @@ def run(
                 add_thinking_start_token=True,
             ),
             generation=GenerationConfig(
-                max_new_tokens=max_thinking_tokens + 10, max_thinking_tokens=max_thinking_tokens, max_batch_size=256
+                max_new_tokens=max_thinking_tokens + 30, max_thinking_tokens=max_thinking_tokens, max_batch_size=256
             ),
             summary_filename=summary_filename,
             skip_missing_checkpoints=skip_missing_checkpoints,
