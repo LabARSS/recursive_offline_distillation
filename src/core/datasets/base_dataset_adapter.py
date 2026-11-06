@@ -94,6 +94,9 @@ class BaseDatasetAdapter[D: BaseDataset](AbstractDatasetAdapter):
             lambda row: self.process_row(row).model_dump(),
             num_proc=4,
             remove_columns=ds.column_names if strict else None,
+            # The fingerprint hashes process_row's class by reference, not its code, so
+            # edits to prompts would otherwise silently hit a stale cache.
+            load_from_cache_file=False,
         )
 
         if shuffle:
