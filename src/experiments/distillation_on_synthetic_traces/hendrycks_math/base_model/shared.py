@@ -14,7 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 BASE_OUT_PATH = REPO_ROOT / "artifacts/distillation_on_synthetic_traces/hendrycks_math/base_model"
 
 
-def evaluate_base_model(base_model_id: str, model_name: str) -> None:
+def evaluate_base_model(base_model_id: str, model_name: str, eval_dataset: str = "hendrycks_math_test") -> None:
     logger.info(f"Evaluating base model {base_model_id} with chain-of-thought prompts...")
 
     tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
@@ -26,8 +26,8 @@ def evaluate_base_model(base_model_id: str, model_name: str) -> None:
         eval_dataset=QADatasetAdapter(
             dataset=HendrycksMathCoTResponseDataset(
                 config=QADatasetConfig(
-                    path=str(REPO_ROOT / "data/source/hendrycks_math/hendrycks_math_test.parquet"),
-                    dataset_id="hendrycks_math_test",
+                    path=str(REPO_ROOT / f"data/source/hendrycks_math/{eval_dataset}.parquet"),
+                    dataset_id=eval_dataset,
                 ),
                 tokenizer=tokenizer,
             ),

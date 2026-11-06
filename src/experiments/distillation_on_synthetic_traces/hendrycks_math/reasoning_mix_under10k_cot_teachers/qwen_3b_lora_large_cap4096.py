@@ -15,5 +15,6 @@ if __name__ == "__main__":
         max_thinking_tokens=4096,
         lora_training_args=LoRASpecificTrainingArgsLarge(),
         learning_rate=1e-5,
+        eval_dataset="hendrycks_math_test_1k",
         # dataset_cls=HendrycksMathReasoningResponseDatasetDetailedPrompt,
     )

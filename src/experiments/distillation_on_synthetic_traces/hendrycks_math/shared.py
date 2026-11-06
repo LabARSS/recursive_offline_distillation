@@ -36,6 +36,7 @@ def run(
     learning_rate=1e-5,
     lr_scheduler_type: str = "cosine",
     dataset_cls: Any = HendrycksMathReasoningResponseDataset,
+    eval_dataset: str = "hendrycks_math_test",
 ):
     MODEL_NAME = Path(__file__).parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}").as_posix()
 
@@ -89,11 +90,13 @@ def run(
     if not run_evaluation:
         return
 
-    eval_dataset_id = "hendrycks_math_test"
-    summary_filename = "summary_reasoning_evals.json"
+    # e.g. hendrycks_math_test_1k -> "_1k"; empty for the full test set.
+    eval_suffix = eval_dataset.removeprefix("hendrycks_math_test")
+    eval_dataset_id = eval_dataset
+    summary_filename = f"summary_reasoning_evals{eval_suffix}.json"
     if max_thinking_tokens != 8192:
-        eval_dataset_id = f"hendrycks_math_test_cap{max_thinking_tokens}"
-        summary_filename = f"summary_reasoning_evals_cap{max_thinking_tokens}.json"
+        eval_dataset_id = f"{eval_dataset}_cap{max_thinking_tokens}"
+        summary_filename = f"summary_reasoning_evals{eval_suffix}_cap{max_thinking_tokens}.json"
 
     cot_evaluator = MultiCheckpointEvaluator(
         config=MultiCheckpointEvaluatorConfig(
@@ -102,7 +105,7 @@ def run(
                 dataset=dataset_cls(
                     config=QADatasetConfig(
                         path=Path(__file__)
-                        .parent.joinpath("../../../../data/source/hendrycks_math/hendrycks_math_test.parquet")
+                        .parent.joinpath(f"../../../../data/source/hendrycks_math/{eval_dataset}.parquet")
                         .as_posix(),
                         dataset_id=eval_dataset_id,
                     ),
