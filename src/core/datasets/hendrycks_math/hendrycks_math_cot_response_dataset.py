@@ -14,7 +14,7 @@ class HendrycksMathCoTResponseDataset(HendrycksMathDirectResponseDataset):
             "Solve the problem step-by-step, then put the final answer on a new line.\n\n"
             "Required final-line format: Answer: <answer>\n"
             "Replace <answer> with your final answer in the form requested by the question. "
-            "Do not put prose, a list number, Markdown formatting, math delimiters, or a \boxed{} wrapper on that line. "
+            r"Do not put prose, a list number, Markdown formatting, math delimiters, or a \boxed{} wrapper on that line. "
             "Stop immediately after the final answer."
         )
 
