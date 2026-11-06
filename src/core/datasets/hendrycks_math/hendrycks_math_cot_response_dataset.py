@@ -30,5 +30,5 @@ class HendrycksMathCoTResponseDataset(HendrycksMathDirectResponseDataset):
 
     @override
     def verify_assistant_response(self, row: dict, assistant_response: str) -> tuple[str, bool]:
-        answer = extract_math_answer(assistant_response, self.tokenizer.all_special_tokens)
+        answer = extract_math_answer(assistant_response, self.tokenizer.all_special_tokens if self.tokenizer else [])
         return answer, verify_math_answer(self._ground_truth_answer(row), answer)

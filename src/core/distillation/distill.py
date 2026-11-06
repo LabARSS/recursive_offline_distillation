@@ -32,7 +32,7 @@ def _worker(input_q: queue.Queue, output_q: queue.Queue):
 
 def call_remote_llm(args):
     try:
-        sys_prompt, user_prompt, index, model, max_tokens, timeout = args
+        sys_prompt, user_prompt, index, model, max_tokens, timeout, reasoning = args
 
         messages = [
             {"role": "system", "content": sys_prompt},
@@ -45,7 +45,7 @@ def call_remote_llm(args):
             messages=messages,
             stream=True,
             extra_body={
-                "reasoning": {"enabled": True, "max_tokens": max_tokens},
+                "reasoning": {"enabled": reasoning, "max_tokens": max_tokens},
             },
         )
 
@@ -104,6 +104,7 @@ class DistillationResultWriter:
 def distill_on_dataset(
     config: DistillationConfig,
     distillation_result_writer: DistillationResultWriter = DistillationResultWriter(),
+    reasoning=True,
 ):
     invalid_answers = 0
     cnt = 0
@@ -139,7 +140,7 @@ def distill_on_dataset(
 
         sys_prompt = config.dataset.system_prompt(row_dict)
         user_prompt = config.dataset.user_prompt(row_dict)
-        input_q.put((sys_prompt, user_prompt, index, config.model, config.max_tokens, config.timeout))
+        input_q.put((sys_prompt, user_prompt, index, config.model, config.max_tokens, config.timeout, reasoning))
         expected += 1
 
     for _ in range(pool_size):
