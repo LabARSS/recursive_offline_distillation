@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.5546,
+  "total": 5000,
+  "correct": 2773,
+  "num_truncated": 669,
+  "model_path": "/src/recursive_offline_distillation/src/experiments/distillation_on_synthetic_traces/hendrycks_math/../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/reasoning_mix_under10k_omi2_aug_self/phi4_mini_lora_large/checkpoint-1652"
+}

@@ -14,8 +14,14 @@ class HendrycksMathCoTResponseDataset(HendrycksMathDirectResponseDataset):
             "Solve the problem step-by-step, then put the final answer on a new line.\n\n"
             "Required final-line format: Answer: <answer>\n"
             "Replace <answer> with your final answer in the form requested by the question. "
-            r"Do not put prose, a list number, Markdown formatting, math delimiters, or a \boxed{} wrapper on that line. "
-            "Stop immediately after the final answer."
+            "Use LaTeX for mathematical expressions. The final line must start with the "
+            "literal text Answer: followed by a space and the answer on the same line. "
+            "Do not put prose, a list number, Markdown formatting, math delimiters, "
+            r"or a \boxed{} wrapper on that line. "
+            "Stop immediately after the final answer.\n\n"
+            "Example response:\n"
+            "Dividing both sides of 2x = 1 by 2 gives x = 1/2.\n"
+            r"Answer: \frac{1}{2}"
         )
 
     @override
