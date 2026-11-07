@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.64,
+  "total": 1000,
+  "correct": 640,
+  "num_truncated": 8,
+  "model_path": "/src/recursive_offline_distillation/src/experiments/distillation_on_synthetic_traces/hendrycks_math/../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/cot_teacher_qwen_72b/qwen_3b_lora_large_constant/checkpoint-355"
+}
