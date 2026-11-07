@@ -1,0 +1,15 @@
+{
+  "rows": 6520,
+  "unique_questions": 6519,
+  "source": "llama_70b",
+  "mean_chars": 1393.3483128834355,
+  "median_chars": 1168.0,
+  "p90_chars": 2507.2000000000007,
+  "p95_chars": 3283.149999999998,
+  "p99_chars": 4868.0,
+  "derived_from": {
+    "path": "hendrycks_math_reasoning_mix_under10k_cot_teachers.parquet",
+    "sha256": "36bf408243458711018c84af5cfb64fd28448e66b2fdb86267e910ca7db0c0c2"
+  },
+  "output_sha256": "6d55ea9ef842bb79978c83d44c11a0e7a1e71c7acd399c2b0e53e8be79d13b07"
+}

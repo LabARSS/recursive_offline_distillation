@@ -1,0 +1,15 @@
+{
+  "rows": 5643,
+  "unique_questions": 5642,
+  "source": "qwen_72b",
+  "mean_chars": 1176.023569023569,
+  "median_chars": 1054.0,
+  "p90_chars": 2011.0,
+  "p95_chars": 2358.699999999999,
+  "p99_chars": 3071.4799999999996,
+  "derived_from": {
+    "path": "hendrycks_math_reasoning_mix_under10k_cot_teachers.parquet",
+    "sha256": "36bf408243458711018c84af5cfb64fd28448e66b2fdb86267e910ca7db0c0c2"
+  },
+  "output_sha256": "4fa44d036a5caca0f5c09badb76b18db189ec51b423988b4bebade7af6dc2361"
+}
