@@ -11,10 +11,11 @@ if __name__ == "__main__":
         model_name="llama_3b",
         relative_out_path="./reasoning_mix_under10k_cot_teachers/llama_3b_lora_large_1e4",
         train_dataset="hendrycks_math_reasoning_mix_under10k_cot_teachers",
-        save_schedule=[5, 10],
+        save_schedule=[5],
         max_thinking_tokens=4096,
         lora_training_args=LoRASpecificTrainingArgsLarge(),
         learning_rate=1e-4,
         eval_dataset="hendrycks_math_test_1k",
+        lr_scheduler_type="constant",
         # dataset_cls=HendrycksMathReasoningResponseDatasetDetailedPrompt,
     )
