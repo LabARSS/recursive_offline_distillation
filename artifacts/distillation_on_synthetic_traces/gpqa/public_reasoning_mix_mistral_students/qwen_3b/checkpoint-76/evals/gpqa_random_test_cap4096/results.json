@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.26605504587155965,
+  "total": 109,
+  "correct": 29,
+  "num_truncated": 7,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/gpqa/public_reasoning_mix_mistral_students/qwen_3b/checkpoint-76"
+}

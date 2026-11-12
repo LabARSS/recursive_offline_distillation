@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.644,
+  "total": 1000,
+  "correct": 644,
+  "num_truncated": 8,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_by_metrics/hendrycks_math/entropy_gain_proportional/qwen_3b_mix_qwen_72b_mistral_floored_lora_large/checkpoint-1760"
+}

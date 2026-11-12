@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.615,
+  "total": 1000,
+  "correct": 615,
+  "num_truncated": 2,
+  "model_path": "/workspace/src/experiments/distillation_on_synthetic_traces/hendrycks_math/../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/reasoning_mix_under10k_qwen_72b_mistral/qwen_3b_lora_large/checkpoint-1120"
+}

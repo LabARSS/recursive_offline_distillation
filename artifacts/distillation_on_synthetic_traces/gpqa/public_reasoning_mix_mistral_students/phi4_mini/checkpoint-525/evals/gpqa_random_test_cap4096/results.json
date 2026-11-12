@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.3302752293577982,
+  "total": 109,
+  "correct": 36,
+  "num_truncated": 6,
+  "model_path": "/workspace/artifacts/distillation_on_synthetic_traces/gpqa/public_reasoning_mix_mistral_students/phi4_mini/checkpoint-525"
+}

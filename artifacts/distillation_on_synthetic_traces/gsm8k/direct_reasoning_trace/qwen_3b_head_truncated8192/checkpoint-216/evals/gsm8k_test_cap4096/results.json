@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.8271417740712661,
+  "total": 1319,
+  "correct": 1091,
+  "num_truncated": 36,
+  "model_path": "/workspace/src/experiments/distillation_on_synthetic_traces/gsm8k/../../../../artifacts/distillation_on_synthetic_traces/gsm8k/direct_reasoning_trace/qwen_3b_head_truncated8192/checkpoint-216"
+}

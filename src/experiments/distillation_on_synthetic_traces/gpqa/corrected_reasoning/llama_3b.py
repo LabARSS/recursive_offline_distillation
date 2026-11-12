@@ -1,0 +1,12 @@
+from multiprocessing import freeze_support
+
+from experiments.distillation_on_synthetic_traces.gpqa.shared import run
+
+if __name__ == "__main__":
+    freeze_support()
+    run(
+        model_name="llama_3b",
+        relative_out_path="./corrected_reasoning/llama_3b",
+        train_dataset="train_corrected_answer_deepseek_v4_pro_concat",
+        save_schedule=[2, 5, 10, 15, 20],
+    )

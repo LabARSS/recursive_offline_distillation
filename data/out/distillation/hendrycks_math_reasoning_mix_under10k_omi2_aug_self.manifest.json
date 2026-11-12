@@ -1,0 +1,212 @@
+{
+  "rows": 54805,
+  "unique_question_ids": 54805,
+  "unique_questions": 13948,
+  "inherited_rows": 33454,
+  "added_rows": 21351,
+  "added_by_source": {
+    "omi2_augmented_math": 6999,
+    "self_llama_3b": 5679,
+    "self_qwen_3b": 4590,
+    "self_phi4_mini": 4083
+  },
+  "mean_reasoning_chars": 1753.591515372685,
+  "median_reasoning_chars": 1004.0,
+  "max_reasoning_chars": 9999,
+  "max_reasoning_chars_exclusive": 10000,
+  "traces_truncated": 0,
+  "question_ids": "unique per row; original_question_id retains question grouping only",
+  "inherited_payloads_and_provenance_preserved": true,
+  "correctness": "source correctness flags plus independent final-answer verification",
+  "omi2_reference_answers": "original train gold for original MATH questions; OMI2 reference answers for augmented questions",
+  "decontamination": "exact match or shared 13-word sequence with all 5,000 MATH test questions",
+  "deduplication": "additions must have a new question/chain pair; surrounding chain whitespace is ignored for comparison only",
+  "self_distillation_passes": {
+    "llama_3b": {
+      "hendrycks_math_train_greedy": 5043,
+      "hendrycks_math_train_t0.7_s0": 590,
+      "hendrycks_math_train_t0.7_s1": 296,
+      "hendrycks_math_train_t0.7_s2": 186
+    },
+    "phi4_mini": {
+      "hendrycks_math_train_greedy": 4382
+    },
+    "qwen_3b": {
+      "hendrycks_math_train_greedy": 4909
+    }
+  },
+  "sources": {
+    "deepseek_extra_detailed_written": {
+      "traces": 6553,
+      "unique_questions": 6552,
+      "mean_chars": 2667.4581107889517,
+      "median_chars": 2457.0
+    },
+    "deepseek_regenerated": {
+      "traces": 5841,
+      "unique_questions": 5840,
+      "mean_chars": 982.3912001369629,
+      "median_chars": 342.0
+    },
+    "omi2_augmented_math": {
+      "traces": 6999,
+      "unique_questions": 6999,
+      "mean_chars": 1181.8339762823261,
+      "median_chars": 1030.0
+    },
+    "omi2_math": {
+      "traces": 13554,
+      "unique_questions": 6863,
+      "mean_chars": 820.7108602626531,
+      "median_chars": 704.0
+    },
+    "qwen3_math8k": {
+      "traces": 2753,
+      "unique_questions": 2752,
+      "mean_chars": 6127.341082455503,
+      "median_chars": 6011.0
+    },
+    "self_llama_3b": {
+      "traces": 5679,
+      "unique_questions": 5678,
+      "mean_chars": 823.4935728121148,
+      "median_chars": 694.0
+    },
+    "self_phi4_mini": {
+      "traces": 4083,
+      "unique_questions": 4082,
+      "mean_chars": 882.721773205976,
+      "median_chars": 787.0
+    },
+    "self_qwen_3b": {
+      "traces": 4590,
+      "unique_questions": 4589,
+      "mean_chars": 1020.2555555555556,
+      "median_chars": 908.0
+    },
+    "sxiong_r1": {
+      "traces": 4753,
+      "unique_questions": 4752,
+      "mean_chars": 4977.844729644435,
+      "median_chars": 4537.0
+    }
+  },
+  "candidate_outcomes": [
+    {
+      "source": "deepseek_extra_detailed_written",
+      "status": "included",
+      "rows": 6553
+    },
+    {
+      "source": "deepseek_regenerated",
+      "status": "included",
+      "rows": 5841
+    },
+    {
+      "source": "omi2_augmented_math",
+      "status": "included",
+      "rows": 6999
+    },
+    {
+      "source": "omi2_augmented_math",
+      "status": "missing_final_answer",
+      "rows": 1
+    },
+    {
+      "source": "omi2_math",
+      "status": "duplicate_chain",
+      "rows": 13554
+    },
+    {
+      "source": "omi2_math",
+      "status": "final_answer_incorrect",
+      "rows": 128
+    },
+    {
+      "source": "omi2_math",
+      "status": "included",
+      "rows": 13554
+    },
+    {
+      "source": "qwen3_math8k",
+      "status": "included",
+      "rows": 2753
+    },
+    {
+      "source": "self_llama_3b",
+      "status": "at_or_over_character_limit",
+      "rows": 3
+    },
+    {
+      "source": "self_llama_3b",
+      "status": "included",
+      "rows": 5679
+    },
+    {
+      "source": "self_llama_3b",
+      "status": "test_overlap",
+      "rows": 433
+    },
+    {
+      "source": "self_phi4_mini",
+      "status": "included",
+      "rows": 4083
+    },
+    {
+      "source": "self_phi4_mini",
+      "status": "test_overlap",
+      "rows": 299
+    },
+    {
+      "source": "self_qwen_3b",
+      "status": "duplicate_chain",
+      "rows": 1
+    },
+    {
+      "source": "self_qwen_3b",
+      "status": "included",
+      "rows": 4590
+    },
+    {
+      "source": "self_qwen_3b",
+      "status": "test_overlap",
+      "rows": 318
+    },
+    {
+      "source": "sxiong_r1",
+      "status": "included",
+      "rows": 4753
+    }
+  ],
+  "input_files": {
+    "previous_mix": {
+      "path": "data/out/distillation/hendrycks_math_reasoning_mix_omi2_qwen3_sxiong_deepseek_under10k.parquet",
+      "sha256": "918ad3d4cba92612767ae09e16d64d61564d3c6fa18fe35f0aa8a4954b523afc"
+    },
+    "train": {
+      "path": "data/source/hendrycks_math/hendrycks_math_train.parquet",
+      "sha256": "be61ef4023be06bb7c38401e6fad6f485de6c6ecd343ac628f92ffadb0cb0c2b"
+    },
+    "test": {
+      "path": "data/source/hendrycks_math/hendrycks_math_test.parquet",
+      "sha256": "f8ab7e42df4f300128cbb55f5a9fb475ce4f9d70996eb35f42ffc0b1e181b283"
+    },
+    "omi2_20k": {
+      "path": "data/out/distillation/hendrycks_math_openmathinstruct2_math_all2sol_aug7000.parquet",
+      "sha256": "34aa8eb72e9ee3d5049749d6e0d76a76faa6500366712f31e06ef902d0aa22e0"
+    },
+    "self_llama_3b": {
+      "path": "data/out/distillation/hendrycks_math_self_distilled_llama_3b.parquet",
+      "sha256": "5887530fc196588c199a7bfb1bc61486f7a82d3c2797a19aa44616b13e00129f"
+    },
+    "self_phi4_mini": {
+      "path": "data/out/distillation/hendrycks_math_self_distilled_phi4_mini.parquet",
+      "sha256": "406c8666fa99d7dac6cfb09845315543c076196f29938278e9655da5db5130fd"
+    },
+    "self_qwen_3b": {
+      "path": "data/out/distillation/hendrycks_math_self_distilled_qwen_3b.parquet",
+      "sha256": "ba704f746c060847aa04e1bcc6313570360bc167dc07ef87df30e63b6730b062"
+    }
+  },
+  "output_sha256": "87c375e42477f1d23dcca5066b1972a59a073c75a5437db598c469ad54fdcd8b"
+}

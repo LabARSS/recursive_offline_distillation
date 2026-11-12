@@ -10,6 +10,7 @@ dependencies = [
     "einops>=0.8.0",
     "ipywidgets>=8.1.7",
     "loguru>=0.7.3",
+    "math-verify[antlr4_13_2]==0.9.0",
     "matplotlib>=3.10.1",
     "mistral-common>=1.9.1",
     "mistralai>=1.6.0",

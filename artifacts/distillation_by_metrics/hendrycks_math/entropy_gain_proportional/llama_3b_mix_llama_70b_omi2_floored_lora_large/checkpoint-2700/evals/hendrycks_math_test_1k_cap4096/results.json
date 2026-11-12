@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.537,
+  "total": 1000,
+  "correct": 537,
+  "num_truncated": 30,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_by_metrics/hendrycks_math/entropy_gain_proportional/llama_3b_mix_llama_70b_omi2_floored_lora_large/checkpoint-2700"
+}

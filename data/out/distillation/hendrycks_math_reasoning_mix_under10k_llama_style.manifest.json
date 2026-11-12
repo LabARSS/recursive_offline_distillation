@@ -1,0 +1,87 @@
+{
+  "rows": 19062,
+  "unique_questions": 6887,
+  "mean_chars": 1019.520931696569,
+  "median_chars": 828.0,
+  "p90_chars": 1853.0,
+  "p95_chars": 2354.9000000000015,
+  "p99_chars": 4020.729999999996,
+  "max_chars": 9998,
+  "max_reasoning_chars_exclusive": 10000,
+  "traces_truncated": 0,
+  "omi2_sampling": {
+    "chains_per_question": 1,
+    "seed": 42
+  },
+  "self_passes": {
+    "hendrycks_math_train_greedy": 5043,
+    "hendrycks_math_train_t0.7_s0": 590,
+    "hendrycks_math_train_t0.7_s1": 296,
+    "hendrycks_math_train_t0.7_s2": 186
+  },
+  "correctness": "final-answer verification against train gold (OMI2 and self chains also require their source flag)",
+  "teacher_reasoning": "Llama 70B CoT response with its trailing 'Answer: <x>' line removed; OMI2 chains unchanged",
+  "decontamination": "exact match or shared 13-word sequence with all 5,000 MATH test questions",
+  "question_ids": "unique per row; original_question_id retains question grouping only",
+  "sources": {
+    "llama_70b": {
+      "traces": 6520,
+      "unique_questions": 6519,
+      "mean_chars": 1393.3483128834355,
+      "median_chars": 1168.0,
+      "p90_chars": 2507.2000000000007,
+      "p95_chars": 3283.149999999998,
+      "p99_chars": 4868.0,
+      "max_chars": 9042
+    },
+    "omi2_math": {
+      "traces": 6863,
+      "unique_questions": 6863,
+      "mean_chars": 826.5856039632814,
+      "median_chars": 706.0,
+      "p90_chars": 1491.8000000000002,
+      "p95_chars": 1817.8999999999996,
+      "p99_chars": 2517.9000000000005,
+      "max_chars": 5087
+    },
+    "self_llama_3b": {
+      "traces": 5679,
+      "unique_questions": 5678,
+      "mean_chars": 823.4935728121148,
+      "median_chars": 694.0,
+      "p90_chars": 1365.0,
+      "p95_chars": 1704.0,
+      "p99_chars": 2868.540000000002,
+      "max_chars": 9998
+    }
+  },
+  "chains_per_question": {
+    "1": 274,
+    "2": 1053,
+    "3": 5559,
+    "5": 1
+  },
+  "input_files": {
+    "train": {
+      "path": "data/source/hendrycks_math/hendrycks_math_train.parquet",
+      "sha256": "be61ef4023be06bb7c38401e6fad6f485de6c6ecd343ac628f92ffadb0cb0c2b"
+    },
+    "test": {
+      "path": "data/source/hendrycks_math/hendrycks_math_test.parquet",
+      "sha256": "f8ab7e42df4f300128cbb55f5a9fb475ce4f9d70996eb35f42ffc0b1e181b283"
+    },
+    "llama_70b": {
+      "path": "data/out/distillation/hendrycks_math_distilled_cot_llama_70b.parquet",
+      "sha256": "60f7a0570ba702b987a911dbada5ae350290ea090fc76626a9f5412ae19ef76c"
+    },
+    "self_llama_3b": {
+      "path": "data/out/distillation/hendrycks_math_self_distilled_llama_3b.parquet",
+      "sha256": "5887530fc196588c199a7bfb1bc61486f7a82d3c2797a19aa44616b13e00129f"
+    },
+    "omi2_20k": {
+      "path": "data/out/distillation/hendrycks_math_openmathinstruct2_math_all2sol_aug7000.parquet",
+      "sha256": "34aa8eb72e9ee3d5049749d6e0d76a76faa6500366712f31e06ef902d0aa22e0"
+    }
+  },
+  "output_sha256": "3924f99ab91c470b6868f238095c95b5fe5faac8d5aa4d4a0a615b5e8e946282"
+}

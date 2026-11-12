@@ -1,0 +1,46 @@
+{
+  "rows": 13383,
+  "unique_questions": 6882,
+  "mean_chars": 1102.7040274975716,
+  "median_chars": 909.0,
+  "p90_chars": 2013.800000000001,
+  "p95_chars": 2564.0,
+  "p99_chars": 4281.720000000001,
+  "max_chars": 9042,
+  "sources": {
+    "llama_70b": {
+      "traces": 6520,
+      "unique_questions": 6519,
+      "mean_chars": 1393.3483128834355,
+      "median_chars": 1168.0,
+      "p90_chars": 2507.2000000000007,
+      "p95_chars": 3283.149999999998,
+      "p99_chars": 4868.0,
+      "max_chars": 9042
+    },
+    "omi2_math": {
+      "traces": 6863,
+      "unique_questions": 6863,
+      "mean_chars": 826.5856039632814,
+      "median_chars": 706.0,
+      "p90_chars": 1491.8000000000002,
+      "p95_chars": 1817.8999999999996,
+      "p99_chars": 2517.9000000000005,
+      "max_chars": 5087
+    }
+  },
+  "chains_per_question": {
+    "1": 382,
+    "2": 6499,
+    "3": 1
+  },
+  "derived_from": {
+    "path": "hendrycks_math_reasoning_mix_under10k_llama_style.parquet",
+    "sha256": "3924f99ab91c470b6868f238095c95b5fe5faac8d5aa4d4a0a615b5e8e946282",
+    "kept_sources": [
+      "llama_70b",
+      "omi2_math"
+    ]
+  },
+  "output_sha256": "26e930dcd2ca6fb2e7db8ac6ac4dd0d5c4811317dc669a8da485f21bea801e49"
+}

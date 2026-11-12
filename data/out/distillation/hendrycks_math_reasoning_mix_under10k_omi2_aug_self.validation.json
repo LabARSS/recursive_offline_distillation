@@ -1,0 +1,12 @@
+{
+  "rows": 54805,
+  "unique_row_ids": 54805,
+  "unique_questions": 13948,
+  "all_original_chain_payloads_preserved": true,
+  "all_added_chain_payloads_match_sources_exactly": true,
+  "all_answers_verified": true,
+  "all_reasoning_under_10000_characters": true,
+  "duplicate_additions": 0,
+  "test_question_overlap": 0,
+  "input_hashes_unchanged": true
+}
