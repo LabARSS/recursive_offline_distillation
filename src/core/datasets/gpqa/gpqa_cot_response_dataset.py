@@ -39,7 +39,9 @@ class GPQACoTResponseDataset(GPQASingleTokenResponseDataset):
 
     @override
     def verify_assistant_response(self, row: dict, assistant_response: str) -> tuple[str, bool]:
-        assistant_response = clean_assistant_response(assistant_response, self.tokenizer.all_special_tokens)
+        assistant_response = clean_assistant_response(
+            assistant_response, self.tokenizer.all_special_tokens if self.tokenizer else []
+        )
         # Models can put prose around the answer or explain it afterward.
         # Use the last marker, so a revision overrides an earlier answer;
         # an invalid/incomplete final marker must not revive an earlier one.
