@@ -13,6 +13,6 @@ if __name__ == "__main__":
     run(
         model_name="llama_3b",
         relative_out_path="./direct_reasoning_trace/llama_3b",
-        train_dataset="medmcqa_distilled_cot_deepseek_v3_correct",
-        save_schedule=[1, 2, 5, 10],
+        train_dataset="medmcqa_distilled_cot_deepseek_v3_under10k",
+        save_schedule=[2, 5, 10],
     )

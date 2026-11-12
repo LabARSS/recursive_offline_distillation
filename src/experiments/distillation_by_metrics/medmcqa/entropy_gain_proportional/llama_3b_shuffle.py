@@ -17,9 +17,9 @@ if __name__ == "__main__":
     run(
         model_name="llama_3b",
         relative_out_path="./entropy_gain_proportional/llama_3b_shuffle",
-        train_dataset="medmcqa_distilled_cot_deepseek_v3_correct",
+        train_dataset="medmcqa_distilled_cot_deepseek_v3_under10k",
         train_dataset_adapter=get_merged_adapter_with_data_mix(EntropyGainProportionalSampler),
-        save_schedule=[10, 20, 50],
+        save_schedule=[20, 50, 100],
         complexity_estimator_override=SingleTokenEntropyWithRandomEstimator(),
         shuffle=True,
     )
