@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.027522935779816515,
+  "total": 109,
+  "correct": 3,
+  "num_truncated": 45,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/gpqa/corrected_reasoning/phi4_mini/checkpoint-14"
+}

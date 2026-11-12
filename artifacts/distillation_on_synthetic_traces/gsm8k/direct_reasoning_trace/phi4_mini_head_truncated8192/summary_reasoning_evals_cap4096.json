@@ -1,0 +1,36 @@
+{
+  "gsm8k_test_cap4096": [
+    {
+      "epoch": 1.0,
+      "checkpoint": "checkpoint-142",
+      "accuracy": 0.8802122820318423,
+      "total": 1319,
+      "correct": 1161,
+      "num_truncated": 43
+    },
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-284",
+      "accuracy": 0.8718726307808946,
+      "total": 1319,
+      "correct": 1150,
+      "num_truncated": 29
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-710",
+      "accuracy": 0.8779378316906747,
+      "total": 1319,
+      "correct": 1158,
+      "num_truncated": 24
+    },
+    {
+      "epoch": 10.0,
+      "checkpoint": "checkpoint-1420",
+      "accuracy": 0.8688400303260045,
+      "total": 1319,
+      "correct": 1146,
+      "num_truncated": 22
+    }
+  ]
+}

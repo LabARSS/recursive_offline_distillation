@@ -1,0 +1,38 @@
+{
+  "rows": 6960,
+  "unique_questions": 6959,
+  "source": "qwen_72b",
+  "correct": 5643,
+  "incorrect": 1317,
+  "mean_chars": 1355.7670977011494,
+  "median_chars": 1190.0,
+  "p90_chars": 2391.0,
+  "p95_chars": 2759.0999999999985,
+  "p99_chars": 3484.0499999999993,
+  "max_chars": 8938,
+  "audit_status": {
+    "included": 6960,
+    "test_overlap": 517,
+    "missing_final_answer": 23
+  },
+  "max_reasoning_chars_exclusive": 10000,
+  "traces_truncated": 0,
+  "correctness": "not filtered; distill_ans_correct = final answer verified against train gold",
+  "decontamination": "exact match or shared 13-word sequence with all 5,000 MATH test questions",
+  "question_ids": "unique per row; original_question_id retains question grouping only",
+  "input_files": {
+    "train": {
+      "path": "data/source/hendrycks_math/hendrycks_math_train.parquet",
+      "sha256": "be61ef4023be06bb7c38401e6fad6f485de6c6ecd343ac628f92ffadb0cb0c2b"
+    },
+    "test": {
+      "path": "data/source/hendrycks_math/hendrycks_math_test.parquet",
+      "sha256": "f8ab7e42df4f300128cbb55f5a9fb475ce4f9d70996eb35f42ffc0b1e181b283"
+    },
+    "qwen_72b": {
+      "path": "data/out/distillation/hendrycks_math_distilled_cot_qwen_72b.parquet",
+      "sha256": "d92b8396c50ac120ad9ebe0adf6f0a56feb7492594e44967b38af0a78a2a5a23"
+    }
+  },
+  "output_sha256": "262579b523e7c6cedead450b965f4d06dc528fea33805fda89d25391d0b653c5"
+}

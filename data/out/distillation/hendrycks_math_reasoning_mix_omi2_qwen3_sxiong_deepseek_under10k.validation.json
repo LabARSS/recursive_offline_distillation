@@ -1,0 +1,18 @@
+{
+  "rows": 33454,
+  "unique_original_train_question_ids": 6943,
+  "all_ids_match_exact_train_question_text": true,
+  "all_final_answers_verified_against_train_gold": true,
+  "all_reasoning_payloads_equal_untruncated_source_text": true,
+  "all_reasoning_lengths_strictly_under_10000": true,
+  "trace_id_unique": true,
+  "mean_reasoning_chars": 2238.0038560411313,
+  "max_reasoning_chars": 9999,
+  "source_counts": {
+    "omi2_math": 13554,
+    "deepseek_extra_detailed_written": 6553,
+    "deepseek_regenerated": 5841,
+    "sxiong_r1": 4753,
+    "qwen3_math8k": 2753
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "epoch": 90,
+  "total_rows": 13383,
+  "failed_rows": 1374,
+  "failure_rate": 0.10266756332660838,
+  "backfilled": 1374,
+  "residual_failed": 0,
+  "exceeded_threshold": false,
+  "selected_samples": 1722,
+  "selected_samples_by_dataset": {
+    "train_hendrycks_math_reasoning": 1338,
+    "train_hendrycks_math_direct_response": 384
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "gpqa_random_test_cap4096": [
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-138",
+      "accuracy": 0.27522935779816515,
+      "total": 109,
+      "correct": 30,
+      "num_truncated": 7
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-345",
+      "accuracy": 0.26605504587155965,
+      "total": 109,
+      "correct": 29,
+      "num_truncated": 11
+    },
+    {
+      "epoch": 10.0,
+      "checkpoint": "checkpoint-690",
+      "accuracy": 0.3577981651376147,
+      "total": 109,
+      "correct": 39,
+      "num_truncated": 2
+    },
+    {
+      "epoch": 15.0,
+      "checkpoint": "checkpoint-1035",
+      "accuracy": 0.27522935779816515,
+      "total": 109,
+      "correct": 30,
+      "num_truncated": 10
+    },
+    {
+      "epoch": 20.0,
+      "checkpoint": "checkpoint-1380",
+      "accuracy": 0.3302752293577982,
+      "total": 109,
+      "correct": 36,
+      "num_truncated": 10
+    }
+  ]
+}

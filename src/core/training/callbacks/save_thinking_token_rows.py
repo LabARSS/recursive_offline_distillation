@@ -46,6 +46,31 @@ def write_thinking_token_rows(model: PreTrainedModel, new_ids: list[int], target
     return out_path
 
 
+def restore_thinking_token_rows(model: PreTrainedModel, new_ids: list[int], source_dir: Path) -> None:
+    """Write the rows persisted by `write_thinking_token_rows` back into the model in place.
+
+    Needed on resume: Trainer restores the adapter and optimizer state from the checkpoint,
+    but the trained rows live in the base model and would otherwise silently revert to
+    their pre-training values.
+    """
+    rows_path = source_dir / ROWS_FILENAME
+    assert rows_path.exists(), f"Resuming from {source_dir} but {ROWS_FILENAME} is missing"
+    payload = torch.load(rows_path, map_location="cpu", weights_only=True)
+    assert payload["new_ids"] == list(new_ids), (
+        f"{rows_path} has new_ids={payload['new_ids']}, expected {list(new_ids)}"
+    )
+
+    with torch.no_grad():
+        in_w: torch.Tensor = model.get_input_embeddings().weight  # type: ignore[assignment]
+        ids_t = torch.tensor(new_ids, dtype=torch.long, device=in_w.device)
+        in_w.data[ids_t] = payload["input_rows"].to(dtype=in_w.dtype, device=in_w.device)
+        if "output_rows" in payload:
+            out_layer = model.get_output_embeddings()
+            assert out_layer is not None, f"{rows_path} has output_rows but model has no output embedding layer"
+            out_w: torch.Tensor = out_layer.weight  # type: ignore[assignment]
+            out_w.data[ids_t] = payload["output_rows"].to(dtype=out_w.dtype, device=out_w.device)
+
+
 class SaveThinkingTokenRowsCallback(TrainerCallback):
     def __init__(self, new_ids: list[int]):
         assert new_ids, "new_ids must be non-empty"

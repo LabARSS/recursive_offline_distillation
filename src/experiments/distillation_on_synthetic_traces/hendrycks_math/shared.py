@@ -1,0 +1,124 @@
+from pathlib import Path
+from typing import Any
+
+from transformers import AutoTokenizer
+
+from core.datasets.causal_dataset_adapter import CausalDatasetAdapter
+from core.datasets.hendrycks_math.hendrycks_math_reasoning_response_dataset import HendrycksMathReasoningResponseDataset
+from core.datasets.qa_dataset import QADatasetConfig
+from core.datasets.qa_dataset_adapter import QADatasetAdapter
+from core.evaluation.multi_checkpoint_evaluator import (
+    GenerationConfig,
+    MultiCheckpointEvaluator,
+    MultiCheckpointEvaluatorConfig,
+)
+from core.training.base_trainer import PackingConfig
+from core.training.lora_trainer import (
+    LoRASpecificTrainingArgs,
+    LoRATrainer,
+    LoRATrainerConfig,
+    LoRATrainingArgs,
+    phi4_mini_lora_target_modules,
+)
+from core.training.packing_budgets import packing_budget
+from core.training.thinking_tokens import setup_thinking_tokens
+
+
+def run(
+    model_name: str,
+    relative_out_path: str,
+    train_dataset: str,
+    save_schedule: list[int],
+    max_thinking_tokens: int = 4096,
+    skip_missing_checkpoints: bool = False,
+    run_evaluation: bool = True,
+    lora_training_args: LoRASpecificTrainingArgs | None = None,
+    learning_rate=1e-5,
+    lr_scheduler_type: str = "cosine",
+    dataset_cls: Any = HendrycksMathReasoningResponseDataset,
+    eval_dataset: str = "hendrycks_math_test",
+):
+    MODEL_NAME = Path(__file__).parent.joinpath(f"../../../../artifacts/base_models_v0/{model_name}").as_posix()
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    setup_thinking_tokens(tokenizer)
+
+    OUT_PATH = (
+        Path(__file__)
+        .parent.joinpath("../../../../artifacts/distillation_on_synthetic_traces/hendrycks_math/")
+        .joinpath(relative_out_path)
+        .as_posix()
+    )
+
+    lora_training_args = lora_training_args or LoRASpecificTrainingArgs()
+    lora_training_args.train_thinking_token_embeddings = True
+    if model_name == "phi4_mini":
+        lora_training_args.target_modules = phi4_mini_lora_target_modules
+
+    trainer = LoRATrainer(
+        config=LoRATrainerConfig(
+            out_path=OUT_PATH,
+            model_id=MODEL_NAME,
+            train_dataset=CausalDatasetAdapter(
+                dataset=dataset_cls(
+                    config=QADatasetConfig(
+                        path=Path(__file__)
+                        .parent.joinpath(f"../../../../data/out/distillation/{train_dataset}.parquet")
+                        .as_posix(),
+                        dataset_id=f"hendrycks_math_{train_dataset}",
+                    ),
+                    tokenizer=tokenizer,
+                )
+            ),
+            training_args=LoRATrainingArgs(
+                num_train_epochs=save_schedule[-1],
+                per_device_train_batch_size=1,
+                learning_rate=learning_rate,
+                lr_scheduler_type=lr_scheduler_type,
+            ),
+            lora_training_args=lora_training_args,
+            packing=PackingConfig(budget=packing_budget(model_name)),
+            save_schedule=save_schedule,
+        ),
+        tokenizer=tokenizer,
+    )
+    trainer.train()
+    trainer.unload()
+
+    if not run_evaluation:
+        return
+
+    # e.g. hendrycks_math_test_1k -> "_1k"; empty for the full test set.
+    eval_suffix = eval_dataset.removeprefix("hendrycks_math_test")
+    eval_dataset_id = eval_dataset
+    summary_filename = f"summary_reasoning_evals{eval_suffix}.json"
+    if max_thinking_tokens != 8192:
+        eval_dataset_id = f"{eval_dataset}_cap{max_thinking_tokens}"
+        summary_filename = f"summary_reasoning_evals{eval_suffix}_cap{max_thinking_tokens}.json"
+
+    cot_evaluator = MultiCheckpointEvaluator(
+        config=MultiCheckpointEvaluatorConfig(
+            checkpoints_dir=OUT_PATH,
+            eval_dataset=QADatasetAdapter(
+                dataset=dataset_cls(
+                    config=QADatasetConfig(
+                        path=Path(__file__)
+                        .parent.joinpath(f"../../../../data/source/hendrycks_math/{eval_dataset}.parquet")
+                        .as_posix(),
+                        dataset_id=eval_dataset_id,
+                    ),
+                    tokenizer=tokenizer,
+                ),
+                add_thinking_start_token=True,
+            ),
+            generation=GenerationConfig(
+                max_new_tokens=max_thinking_tokens + 30, max_thinking_tokens=max_thinking_tokens, max_batch_size=256
+            ),
+            summary_filename=summary_filename,
+            skip_missing_checkpoints=skip_missing_checkpoints,
+        ),
+        tokenizer=tokenizer,
+    )
+    cot_evaluator.evaluate_all()

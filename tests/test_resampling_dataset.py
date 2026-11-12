@@ -102,7 +102,7 @@ def test_save_processed_dataset_creates_parent_dir(thinking_tokenizer, tmp_path)
 class _EmptyAdapter(AbstractDatasetAdapter):
     """Minimal adapter whose post-sampling dataset is empty, to exercise __iter__'s guard."""
 
-    def process_dataset(self, path_override=None, shuffle=False, shuffle_seed=None):
+    def process_dataset(self, path_override=None, shuffle=False, shuffle_seed=None, redraw_seed=None):
         return Dataset.from_dict({"input_ids": [], "attention_mask": [], "labels": [], "row_id": []})
 
     def save_processed_dataset(self, df, path, tmp):
@@ -155,6 +155,28 @@ def test_shuffle_is_deterministic_within_epoch_and_changes_across_epochs(
     assert first == replay
     assert first != next_epoch
     assert set(first) == set(next_epoch) == set(source["question_id"])
+
+
+def test_merged_redraw_preserves_nested_samples(thinking_tokenizer, tmp_path, make_resampling_df):
+    from core.dataset_samplers.random_sampler import RandomSampler
+
+    parquet = tmp_path / "cached.parquet"
+    source = make_resampling_df(40)
+    source["random_value"] = 0.5
+    source.to_parquet(parquet, index=False)
+    before = parquet.read_bytes()
+    merged = MergedDatasetAdapter(
+        [_adapter(thinking_tokenizer, RandomSampler(BaseDatasetSamplerConfig(top_k=k))) for k in (7, 3)]
+    )
+
+    rows = merged.process_dataset(path_override=str(parquet), redraw_seed=51)
+    replay = merged.process_dataset(path_override=str(parquet), redraw_seed=51)
+    another_seed = merged.process_dataset(path_override=str(parquet), redraw_seed=52)
+
+    assert list(rows["row_id"]) == list(replay["row_id"])
+    assert set(rows["row_id"]) != set(another_seed["row_id"])
+    assert set(rows["row_id"][7:]) < set(rows["row_id"][:7])
+    assert parquet.read_bytes() == before
 
 
 def test_out_path_for_epoch_uses_dataset_id(thinking_tokenizer):

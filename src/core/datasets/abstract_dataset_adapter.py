@@ -12,6 +12,7 @@ class AbstractDatasetAdapter(ABC):
         path_override: str | None = None,
         shuffle: bool = False,
         shuffle_seed: int | None = None,
+        redraw_seed: int | None = None,
     ) -> Dataset: ...
 
     @abstractmethod

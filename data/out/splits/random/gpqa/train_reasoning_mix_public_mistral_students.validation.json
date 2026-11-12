@@ -1,0 +1,26 @@
+{
+  "rows": 2011,
+  "previous_rows_preserved_exactly": 1459,
+  "added_rows": 552,
+  "unique_training_questions": 437,
+  "test_question_overlap": 0,
+  "test_id_overlap": 0,
+  "max_full_target_chars": 9976,
+  "traces_truncated": 0,
+  "exact_duplicate_targets": 0,
+  "all_input_hashes_unchanged": true,
+  "every_target_rechecked_against_local_training_reference": true,
+  "every_added_reasoning_matches_complete_source_trace": true,
+  "excluded_teacher_corrections_present": false,
+  "source_counts": {
+    "original_explanations": 436,
+    "current_corrected": 396,
+    "sxiong_written": 371,
+    "spawn99": 256,
+    "mistral_large_4_0": 187,
+    "student_phi4_mini": 136,
+    "student_qwen_3b": 125,
+    "student_llama_3b": 104
+  },
+  "unit_tests_passed": 41
+}

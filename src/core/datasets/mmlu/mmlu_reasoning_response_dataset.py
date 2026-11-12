@@ -1,6 +1,7 @@
 from typing import override
 
 from core.datasets.mmlu.mmlu_single_token_response_dataset import MMLUSingleTokenResponseDataset
+from core.utils.cot_answers import clean_assistant_response
 
 
 class MMLUReasoningResponseDataset(MMLUSingleTokenResponseDataset):
@@ -15,14 +16,16 @@ class MMLUReasoningResponseDataset(MMLUSingleTokenResponseDataset):
         assert isinstance(self.tokenizer.thinking_end_token, str), (
             "Tokenizer must have a defined thinking_end_token to use MMLUReasoningResponseDataset"
         )
+        # Cut at chat-end markers while retaining </think> for answer extraction.
+        assistant_response = clean_assistant_response(assistant_response, ())
         thinking_end_token_position = assistant_response.find(self.tokenizer.thinking_end_token)
         if thinking_end_token_position == -1:
-            return super().verify_assistant_response(row, assistant_response)
+            return super().verify_assistant_response(
+                row, clean_assistant_response(assistant_response, self.tokenizer.all_special_tokens)
+            )
 
         raw = assistant_response[thinking_end_token_position + len(self.tokenizer.thinking_end_token) :]
-        for tok in self.tokenizer.all_special_tokens:
-            raw = raw.replace(tok, "")
-        extracted_answer = raw.strip().lower()
+        extracted_answer = clean_assistant_response(raw, self.tokenizer.all_special_tokens).lower()
 
         try:
             return super().verify_assistant_response(row, extracted_answer)

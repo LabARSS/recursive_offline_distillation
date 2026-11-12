@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.8779378316906747,
+  "total": 1319,
+  "correct": 1158,
+  "num_truncated": 24,
+  "model_path": "/workspace/src/experiments/distillation_on_synthetic_traces/gsm8k/../../../../artifacts/distillation_on_synthetic_traces/gsm8k/direct_reasoning_trace/phi4_mini_head_truncated8192/checkpoint-710"
+}
