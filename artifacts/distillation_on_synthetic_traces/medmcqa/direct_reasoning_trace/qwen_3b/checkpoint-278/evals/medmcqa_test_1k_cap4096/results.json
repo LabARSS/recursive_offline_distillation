@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.461,
+  "total": 1000,
+  "correct": 461,
+  "num_truncated": 10,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/medmcqa/direct_reasoning_trace/qwen_3b/checkpoint-278"
+}

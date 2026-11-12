@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.541,
+  "total": 1000,
+  "correct": 541,
+  "num_truncated": 2,
+  "model_path": "/src/recursive_offline_distillation/artifacts/distillation_on_synthetic_traces/medmcqa/direct_reasoning_trace/llama_3b/checkpoint-1320"
+}

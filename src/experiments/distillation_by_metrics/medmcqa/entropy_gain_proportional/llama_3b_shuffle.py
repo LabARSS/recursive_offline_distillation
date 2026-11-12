@@ -19,7 +19,7 @@ if __name__ == "__main__":
         relative_out_path="./entropy_gain_proportional/llama_3b_shuffle",
         train_dataset="medmcqa_distilled_cot_deepseek_v3_under10k",
         train_dataset_adapter=get_merged_adapter_with_data_mix(EntropyGainProportionalSampler),
-        save_schedule=[20, 50, 100],
+        save_schedule=[20, 50, 80, 100],
         complexity_estimator_override=SingleTokenEntropyWithRandomEstimator(),
         shuffle=True,
     )

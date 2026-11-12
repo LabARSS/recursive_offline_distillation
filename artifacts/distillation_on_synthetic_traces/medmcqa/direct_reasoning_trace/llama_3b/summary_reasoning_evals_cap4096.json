@@ -1,0 +1,28 @@
+{
+  "medmcqa_test_1k_cap4096": [
+    {
+      "epoch": 2.0,
+      "checkpoint": "checkpoint-264",
+      "accuracy": 0.561,
+      "total": 1000,
+      "correct": 561,
+      "num_truncated": 15
+    },
+    {
+      "epoch": 5.0,
+      "checkpoint": "checkpoint-660",
+      "accuracy": 0.576,
+      "total": 1000,
+      "correct": 576,
+      "num_truncated": 4
+    },
+    {
+      "epoch": 10.0,
+      "checkpoint": "checkpoint-1320",
+      "accuracy": 0.541,
+      "total": 1000,
+      "correct": 541,
+      "num_truncated": 2
+    }
+  ]
+}
