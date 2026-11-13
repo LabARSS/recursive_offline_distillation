@@ -18,7 +18,7 @@ if __name__ == "__main__":
         model_name="llama_3b",
         relative_out_path="./direct_reasoning_trace_w_incorrect/llama_3b_deepseek_v3",
         train_dataset="hendrycks_math_distilled_cot_deepseek_v3_under10k_w_incorrect",
-        save_schedule=[5],
+        save_schedule=[5, 10],
         max_thinking_tokens=4096,
         lora_training_args=LoRASpecificTrainingArgsLarge(),
         learning_rate=1e-5,

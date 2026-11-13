@@ -18,7 +18,7 @@ if __name__ == "__main__":
         model_name="qwen_3b",
         relative_out_path="./direct_reasoning_trace_w_incorrect/qwen_3b_qwen_72b",
         train_dataset="hendrycks_math_distilled_cot_qwen_72b_under10k_w_incorrect",
-        save_schedule=[5],
+        save_schedule=[5, 10],
         max_thinking_tokens=4096,
         lora_training_args=LoRASpecificTrainingArgsLarge(),
         learning_rate=1e-5,
