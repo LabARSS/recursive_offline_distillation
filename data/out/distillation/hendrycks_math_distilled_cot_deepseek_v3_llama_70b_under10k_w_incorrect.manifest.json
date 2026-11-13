@@ -1,0 +1,54 @@
+{
+  "rows": 13835,
+  "unique_questions": 6982,
+  "correct_fraction": 0.938995301770871,
+  "include_incorrect": true,
+  "mean_chars": 1520.2634622334658,
+  "median_chars": 1074.0,
+  "p90_chars": 3223.2000000000007,
+  "p95_chars": 4549.5999999999985,
+  "p99_chars": 7863.959999999999,
+  "max_chars": 9967,
+  "sources": {
+    "deepseek_v3": {
+      "traces": 6869,
+      "correct": 6472,
+      "filter_counts": {
+        "included": 6870,
+        "test_overlap": 517,
+        "at_or_over_character_limit": 113
+      }
+    },
+    "llama_70b": {
+      "traces": 6966,
+      "correct": 6519,
+      "filter_counts": {
+        "included": 6967,
+        "test_overlap": 517,
+        "at_or_over_character_limit": 11,
+        "missing_final_answer": 3,
+        "empty_reasoning": 2
+      }
+    }
+  },
+  "question_ids": "train UUIDs, one chain per question per teacher",
+  "input_files": {
+    "train": {
+      "path": "data/source/hendrycks_math/hendrycks_math_train.parquet",
+      "sha256": "f215813cc2b9c5d37307e0278d111aab9251511511709ec6fb61148ed80dd347"
+    },
+    "test": {
+      "path": "data/source/hendrycks_math/hendrycks_math_test.parquet",
+      "sha256": "f8ab7e42df4f300128cbb55f5a9fb475ce4f9d70996eb35f42ffc0b1e181b283"
+    },
+    "deepseek_v3": {
+      "path": "data/out/distillation/hendrycks_math_distilled_cot_deepseek_v3.parquet",
+      "sha256": "b1e5e571bb137cceae37b445455ee60d3a9788f10d75aa89a3e776ccf1ea0b84"
+    },
+    "llama_70b": {
+      "path": "data/out/distillation/hendrycks_math_distilled_cot_llama_70b.parquet",
+      "sha256": "d23b01360ef63d2000ccdf650c1e1750366cc537fc086a3d6568985aca0ebfb9"
+    }
+  },
+  "output_sha256": "24e290518ec342805cd3c48226d1468ebfeb08134c60f04c8c316cff5b5bb3c6"
+}
