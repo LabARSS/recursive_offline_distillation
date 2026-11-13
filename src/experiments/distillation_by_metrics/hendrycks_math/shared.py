@@ -10,6 +10,9 @@ from core.complexity_estimation.entropy.single_token_entropy_with_random_estimat
 from core.dataset_samplers.base_sampler import BaseDatasetSampler, BaseDatasetSamplerConfig
 from core.datasets.causal_dataset_adapter import CausalDatasetAdapter
 from core.datasets.hendrycks_math.hendrycks_math_direct_response_dataset import HendrycksMathDirectResponseDataset
+from core.datasets.hendrycks_math.hendrycks_math_empty_thinking_response_dataset import (
+    HendrycksMathEmptyThinkingResponseDataset,
+)
 from core.datasets.hendrycks_math.hendrycks_math_reasoning_response_dataset import HendrycksMathReasoningResponseDataset
 from core.datasets.merged_dataset_adapter import MergedDatasetAdapter
 from core.datasets.qa_dataset import QADatasetConfig
@@ -46,7 +49,11 @@ def run(
     proxy_entropy_dataset: str | None = None,
     eval_dataset: str = "hendrycks_math_test",
     lr_scheduler_type: str = "constant",
+    empty_thinking: bool = False,
 ):
+    # empty_thinking: train direct answers as <think></think>answer and measure entropy after an
+    # empty thinking block (from epoch 1; epoch 0 measures the untrained model on the plain prompt).
+    # Without it, a bare direct answer competes with <think> as the first token.
     repo_root = Path(__file__).resolve().parents[4]
     model_path = repo_root / "artifacts/base_models_v0" / model_name
     out_path = repo_root / "artifacts/distillation_by_metrics/hendrycks_math" / relative_out_path
@@ -56,6 +63,7 @@ def run(
         sampler_cls,
         dataset_size=ParquetFile(train_path).metadata.num_rows,
         dataset_cls=dataset_cls,
+        empty_thinking=empty_thinking,
     )
 
     # Match the proxy estimates to this exact trace pool, including augmented questions,
@@ -115,7 +123,8 @@ def run(
                         dataset_id="hendrycks_math_teacher_entropy",
                     ),
                     tokenizer=tokenizer,
-                )
+                ),
+                add_empty_thinking=empty_thinking,
             ),
             complexity_estimator=complexity_estimator_override or SingleTokenEntropyWithRandomEstimator(),
             complexity_estimation_runner_generation_config=ModelGenerateConfig(max_new_tokens=1),
@@ -165,12 +174,16 @@ def get_merged_adapter_with_data_mix(
     sampler_cls: type[BaseDatasetSampler],
     dataset_size: int,
     dataset_cls: type[HendrycksMathDirectResponseDataset] = HendrycksMathReasoningResponseDataset,
+    empty_thinking: bool = False,
 ) -> MergedDatasetAdapter:
     # As in MMLU (1,024 reasoning + 256 direct): ~10% of the pool, direct answers at a quarter of that.
     reasoning_size = dataset_size // 10
     direct_size = max(reasoning_size // 4, 384)
     if direct_size < 1:
         raise ValueError("Training pool is too small for a 10% reasoning sample with answer mixing")
+
+    direct_cls = HendrycksMathEmptyThinkingResponseDataset if empty_thinking else HendrycksMathDirectResponseDataset
+    direct_id = "train_hendrycks_math_empty_thinking" if empty_thinking else "train_hendrycks_math_direct_response"
 
     return MergedDatasetAdapter(
         [
@@ -186,10 +199,10 @@ def get_merged_adapter_with_data_mix(
             ),
             # Ground-truth direct answers keep first-token entropy measurable each epoch.
             CausalDatasetAdapter(
-                dataset=HendrycksMathDirectResponseDataset(
+                dataset=direct_cls(
                     config=QADatasetConfig(
                         path="should be overridden by SetResamplingPathCallback",
-                        dataset_id="train_hendrycks_math_direct_response",
+                        dataset_id=direct_id,
                     ),
                     tokenizer=None,  # type: ignore
                 ),

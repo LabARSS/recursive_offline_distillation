@@ -1,3 +1,4 @@
+import copy
 import gc
 import json
 import os
@@ -319,11 +320,20 @@ class EstimateComplexityCallback(TrainerCallback):
                 # Escape hatch (CPU/local/debug): run in-process, as before — no subprocess.
                 ComplexityEstimationRunner(
                     config=runner_config, complexity_estimator=self._complexity_estimator
-                ).estimate(dataset_adapter=self._complexity_evaluation_dataset, model=model)
+                ).estimate(dataset_adapter=self._estimation_dataset_for(epoch), model=model)
             else:
                 self._estimate_in_subprocess(epoch, model, runner_config)
 
         self._reconcile_estimation(epoch)
+
+    def _estimation_dataset_for(self, epoch: int) -> QADatasetAdapter:
+        # Epoch 0 measures the untrained base model, which has never seen <think></think>; the
+        # empty thinking block only makes sense once training has taught it.
+        adapter = self._complexity_evaluation_dataset
+        if epoch == 0 and getattr(adapter, "add_empty_thinking", False):
+            adapter = copy.copy(adapter)
+            adapter.add_empty_thinking = False
+        return adapter
 
     def _estimate_in_subprocess(
         self, epoch: int, model: PreTrainedModel, runner_config: ComplexityEstimationRunnerConfig
@@ -366,7 +376,7 @@ class EstimateComplexityCallback(TrainerCallback):
                             model_dir.as_posix(),
                             runner_config,
                             self._complexity_estimator,
-                            self._complexity_evaluation_dataset,
+                            self._estimation_dataset_for(epoch),
                             attn_implementation,
                         ),
                         f,

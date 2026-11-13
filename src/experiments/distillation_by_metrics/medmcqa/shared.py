@@ -8,6 +8,7 @@ from core.complexity_estimation.entropy.single_token_entropy_estimator import Si
 from core.dataset_samplers.base_sampler import BaseDatasetSampler, BaseDatasetSamplerConfig
 from core.datasets.causal_dataset_adapter import CausalDatasetAdapter
 from core.datasets.gpqa import GPQAReasoningResponseDataset
+from core.datasets.gpqa.gpqa_empty_thinking_response_dataset import GPQAEmptyThinkingResponseDataset
 from core.datasets.gpqa.gpqa_single_token_response_dataset import GPQASingleTokenResponseDataset
 from core.datasets.merged_dataset_adapter import MergedDatasetAdapter
 from core.datasets.qa_dataset import QADatasetConfig
@@ -100,7 +101,9 @@ def run(
                         dataset_id="medmcqa_teacher_entropy",
                     ),
                     tokenizer=tokenizer,
-                )
+                ),
+                # Training puts direct answers after an empty thinking block, so measure there too.
+                add_empty_thinking=True,
             ),
             complexity_estimator=complexity_estimator_override or SingleTokenEntropyEstimator(),
             complexity_estimation_runner_generation_config=ModelGenerateConfig(max_new_tokens=1),
@@ -157,13 +160,14 @@ def get_merged_adapter_with_data_mix_from_factory(
                 ),
                 dataset_sampler=sampler_factory(1024),
             ),
-            # Mix in a smaller single-token-answer set selected by the same policy so the model
-            # keeps answering with a single letter, keeping per-epoch entropy estimation stable.
+            # Mix in a smaller direct-answer set selected by the same policy, as <think></think>letter:
+            # reasoning rows always start with <think>, so a bare letter would compete with it as
+            # the first token. Entropy is measured after the same empty block.
             CausalDatasetAdapter(
-                dataset=GPQASingleTokenResponseDataset(
+                dataset=GPQAEmptyThinkingResponseDataset(
                     config=QADatasetConfig(
                         path="should be overridden by SetResamplingPathCallback",
-                        dataset_id="train_medmcqa_single_token",
+                        dataset_id="train_medmcqa_empty_thinking",
                     ),
                     # Will be overridden
                     tokenizer=None,  # type: ignore

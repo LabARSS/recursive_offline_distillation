@@ -8,9 +8,15 @@ class QADatasetAdapter(BaseDatasetAdapter[QADataset]):
         dataset: QADataset,
         dataset_sampler: BaseDatasetSampler | None = None,
         add_thinking_start_token: bool = False,
+        add_empty_thinking: bool = False,
     ):
         super().__init__(dataset, dataset_sampler)
+        assert not (add_thinking_start_token and add_empty_thinking), (
+            "add_thinking_start_token and add_empty_thinking are mutually exclusive"
+        )
         self.add_thinking_start_token = add_thinking_start_token
+        # Append <think></think> so the first generated token is a direct answer.
+        self.add_empty_thinking = add_empty_thinking
 
     def process_row(self, row: dict) -> TokenizedRow:
         tokenized = self.dataset.tokenizer.apply_chat_template(
@@ -34,6 +40,15 @@ class QADatasetAdapter(BaseDatasetAdapter[QADataset]):
             )
             input_ids = input_ids + [tid]
             attention_mask = attention_mask + [1]
+
+        if self.add_empty_thinking:
+            tids = [self.dataset.tokenizer.thinking_start_token_id, self.dataset.tokenizer.thinking_end_token_id]
+            assert all(isinstance(tid, int) and tid >= 0 for tid in tids), (
+                "add_empty_thinking=True but tokenizer has no thinking token ids; "
+                "call setup_thinking_tokens(tokenizer) in the experiment script."
+            )
+            input_ids = input_ids + tids
+            attention_mask = attention_mask + [1, 1]
 
         row_id = self.dataset.row_id(row)
 
