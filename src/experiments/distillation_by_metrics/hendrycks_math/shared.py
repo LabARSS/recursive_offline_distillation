@@ -177,8 +177,8 @@ def get_merged_adapter_with_data_mix(
     empty_thinking: bool = False,
 ) -> MergedDatasetAdapter:
     # As in MMLU (1,024 reasoning + 256 direct): ~10% of the pool, direct answers at a quarter of that.
-    reasoning_size = dataset_size // 10
-    direct_size = max(reasoning_size // 4, 384)
+    reasoning_size: int = dataset_size // 10
+    direct_size = reasoning_size // 4
     if direct_size < 1:
         raise ValueError("Training pool is too small for a 10% reasoning sample with answer mixing")
 
