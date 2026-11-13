@@ -1,0 +1,34 @@
+{
+  "llama_3b_deepseek_v3_llama_70b": {
+    "epoch": 5.0,
+    "checkpoint": "checkpoint-935",
+    "accuracy": 0.543,
+    "total": 1000,
+    "correct": 543,
+    "num_truncated": 36
+  },
+  "qwen_3b_deepseek_v3": {
+    "epoch": 5.0,
+    "checkpoint": "checkpoint-580",
+    "accuracy": 0.607,
+    "total": 1000,
+    "correct": 607,
+    "num_truncated": 69
+  },
+  "qwen_3b_deepseek_v3_qwen_72b": {
+    "epoch": 5.0,
+    "checkpoint": "checkpoint-1075",
+    "accuracy": 0.623,
+    "total": 1000,
+    "correct": 623,
+    "num_truncated": 48
+  },
+  "qwen_3b_qwen_72b": {
+    "epoch": 5.0,
+    "checkpoint": "checkpoint-495",
+    "accuracy": 0.634,
+    "total": 1000,
+    "correct": 634,
+    "num_truncated": 16
+  }
+}
