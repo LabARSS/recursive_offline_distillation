@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.641,
+  "total": 1000,
+  "correct": 641,
+  "num_truncated": 10,
+  "model_path": "artifacts/distillation_on_synthetic_traces/hendrycks_math/direct_reasoning_trace_w_incorrect/qwen_3b_qwen_72b/checkpoint-990"
+}
