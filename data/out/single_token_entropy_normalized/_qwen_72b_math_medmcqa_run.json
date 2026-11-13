@@ -1,0 +1,32 @@
+{
+  "source_commit": "b66aa0ee949e45badd2deb141fddc5b60524f7b2",
+  "model": "Qwen/Qwen2.5-72B-Instruct",
+  "model_revision": "495f39366efef23836d0cfae4fbe635880d2be31",
+  "torch": "2.10.0+cu128",
+  "transformers": "4.52.3",
+  "dtype": "bfloat16",
+  "max_new_tokens": 1,
+  "batch_size": 1,
+  "data_shards": 8,
+  "normalization": "Full-vocabulary entropy divided by log(vocabulary size), using repository estimator",
+  "execution": "Eight independent B300 replicas; serial tokenization; model reused across datasets",
+  "validation": "Exact source columns and order preserved; unique question IDs; finite entropy in [0,1] for every row",
+  "outputs": [
+    {
+      "source": "data/source/hendrycks_math/hendrycks_math_train.parquet",
+      "source_sha256": "f215813cc2b9c5d37307e0278d111aab9251511511709ec6fb61148ed80dd347",
+      "output": "hendrycks_math_train_qwen_72b.parquet",
+      "output_sha256": "0c41ec017cf7df05c5456307704eb7730b1e2ae67c63bc9d721bc0314812a88a",
+      "rows": 7500,
+      "missing_entropy": 0
+    },
+    {
+      "source": "data/source/medmcqa/medmcqa_train_10k.parquet",
+      "source_sha256": "6435f2c7fd564a87e01904140427883e9a1b71521c8eed28529cc7ab4b2da4d6",
+      "output": "medmcqa_train_10k_qwen_72b.parquet",
+      "output_sha256": "339f2d4eb54ac2b79fd9e3e92d9d504e1f5d610bb00221bc356308463992c2f3",
+      "rows": 10000,
+      "missing_entropy": 0
+    }
+  ]
+}
