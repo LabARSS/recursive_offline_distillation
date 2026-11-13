@@ -52,6 +52,8 @@
       "command": "PYTHONPATH=src python -m experiments.distillation_on_synthetic_traces.hendrycks_math.direct_reasoning_trace_w_incorrect.llama_3b_deepseek_v3_llama_70b",
       "responses_sha256": "f67b7218ef4cff5fe7d47f2cdc8220708a67df85c92cc7e7b085a6dac058d7cd",
       "checkpoint_weights_included": false,
+      "evaluation_worker_attempts": 1,
+      "recovered_evaluation_failures": [],
       "checkpoint_artifacts": [
         {
           "name": "adapter_model.safetensors",
@@ -95,6 +97,8 @@
       "command": "PYTHONPATH=src python -m experiments.distillation_on_synthetic_traces.hendrycks_math.direct_reasoning_trace_w_incorrect.qwen_3b_deepseek_v3",
       "responses_sha256": "dfad58273d7e81c8df6c478d8e46e52989ecb1663d70025ccc822a61e1b7634e",
       "checkpoint_weights_included": false,
+      "evaluation_worker_attempts": 1,
+      "recovered_evaluation_failures": [],
       "checkpoint_artifacts": [
         {
           "name": "adapter_model.safetensors",
@@ -138,6 +142,17 @@
       "command": "PYTHONPATH=src python -m experiments.distillation_on_synthetic_traces.hendrycks_math.direct_reasoning_trace_w_incorrect.qwen_3b_deepseek_v3_qwen_72b",
       "responses_sha256": "7489d8b42f4c4f9eef813b7d45611c380f9c9ef1a894e664420b0a18d685902e",
       "checkpoint_weights_included": false,
+      "evaluation_worker_attempts": 3,
+      "recovered_evaluation_failures": [
+        {
+          "exit_code": -11,
+          "elapsed_seconds": 306
+        },
+        {
+          "exit_code": -11,
+          "elapsed_seconds": 306
+        }
+      ],
       "checkpoint_artifacts": [
         {
           "name": "adapter_model.safetensors",
@@ -181,6 +196,8 @@
       "command": "PYTHONPATH=src python -m experiments.distillation_on_synthetic_traces.hendrycks_math.direct_reasoning_trace_w_incorrect.qwen_3b_qwen_72b",
       "responses_sha256": "a8969e728896ffc5bec8138609b7ceeb0f565138a5a44c462afdc488294b5b80",
       "checkpoint_weights_included": false,
+      "evaluation_worker_attempts": 1,
+      "recovered_evaluation_failures": [],
       "checkpoint_artifacts": [
         {
           "name": "adapter_model.safetensors",
