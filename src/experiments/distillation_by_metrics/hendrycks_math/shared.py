@@ -43,6 +43,7 @@ def run(
     seed: int = 42,
     dataset_cls: type[HendrycksMathDirectResponseDataset] = HendrycksMathReasoningResponseDataset,
     proxy_models: tuple[str, ...] = ("llama_70b", "qwen_72b"),
+    proxy_entropy_dataset: str | None = None,
     eval_dataset: str = "hendrycks_math_test",
     lr_scheduler_type: str = "constant",
 ):
@@ -57,14 +58,16 @@ def run(
         dataset_cls=dataset_cls,
     )
 
-    # Match the proxy estimates to this exact trace pool, including augmented questions.
+    # Match the proxy estimates to this exact trace pool, including augmented questions,
+    # unless they were estimated once on a superset keyed by the same question_id (e.g. hendrycks_math_train).
     # The estimation entry points already write entropy normalized by log(vocab size).
     # teacher_entropy is the mean normalized entropy over the proxy models.
+    proxy_entropy_dataset = proxy_entropy_dataset or train_dataset
     proxy_columns = [f"{proxy}_entropy_value" for proxy in proxy_models]
     merge_mmlu_on_question_id(
         main_path=train_path,
         extra_paths=[
-            repo_root / "data/out/single_token_entropy_normalized" / f"{train_dataset}_{proxy}.parquet"
+            repo_root / "data/out/single_token_entropy_normalized" / f"{proxy_entropy_dataset}_{proxy}.parquet"
             for proxy in proxy_models
         ],
         extra_columns=[{"entropy_value": column} for column in proxy_columns],

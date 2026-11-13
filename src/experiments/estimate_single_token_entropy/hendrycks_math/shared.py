@@ -14,7 +14,7 @@ from core.datasets.qa_dataset_adapter import QADatasetAdapter
 from core.utils.device import DEVICE_MAP
 
 
-def run(model_id: str, model_name: str, train_dataset: str):
+def run(model_id: str, model_name: str, train_dataset: str, data_dir: str = "data/out/distillation"):
     repo_root = Path(__file__).resolve().parents[4]
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     if tokenizer.pad_token is None:
@@ -40,7 +40,7 @@ def run(model_id: str, model_name: str, train_dataset: str):
         QADatasetAdapter(
             dataset=HendrycksMathDirectResponseDataset(
                 config=QADatasetConfig(
-                    path=(repo_root / "data/out/distillation" / f"{train_dataset}.parquet").as_posix(),
+                    path=(repo_root / data_dir / f"{train_dataset}.parquet").as_posix(),
                     dataset_id="hendrycks_math_proxy_entropy",
                 ),
                 tokenizer=tokenizer,
