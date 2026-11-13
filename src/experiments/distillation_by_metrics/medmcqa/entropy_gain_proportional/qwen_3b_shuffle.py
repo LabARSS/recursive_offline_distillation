@@ -20,6 +20,8 @@ if __name__ == "__main__":
         train_dataset="medmcqa_distilled_cot_deepseek_v3_under10k",
         train_dataset_adapter=get_merged_adapter_with_data_mix(EntropyGainProportionalSampler),
         save_schedule=[20, 50, 80, 100],
+        # Measure entropy every 10 epochs; redraw the weighted sample every epoch in between.
+        resampling_schedule=list(range(0, 100, 10)),
         complexity_estimator_override=SingleTokenEntropyWithRandomEstimator(),
         shuffle=True,
     )

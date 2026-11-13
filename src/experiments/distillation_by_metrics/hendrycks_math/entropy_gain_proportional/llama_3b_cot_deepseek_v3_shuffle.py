@@ -22,6 +22,8 @@ if __name__ == "__main__":
         train_dataset="hendrycks_math_distilled_cot_llama_70b_under10k_w_incorrect",
         sampler_cls=EntropyGainProportionalSampler,
         save_schedule=[20, 50, 80, 100],
+        # Measure entropy every 10 epochs; redraw the weighted sample every epoch in between.
+        resampling_schedule=list(range(0, 100, 10)),
         max_thinking_tokens=4096,
         lora_training_args=LoRASpecificTrainingArgsLarge(),
         learning_rate=1e-5,
